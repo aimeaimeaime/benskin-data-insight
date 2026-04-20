@@ -6,25 +6,27 @@
 </head>
 <body>
 
-<h2>Formulaire Conducteur</h2>
+<div class="container">
+    <h1>Analyse Conducteurs Benskin</h1>
 
-<form action="/submit" method="post">
+    <form action="/submit" method="post" class="form">
 
-    <input type="number" name="age" placeholder="Âge" required>
-    <input type="number" name="experience" placeholder="Expérience" required>
-    <input type="number" step="0.1" name="heures_travail" placeholder="Heures de travail" required>
-    <input type="number" name="clients" placeholder="Clients" required>
-    <input type="number" step="0.1" name="revenu" placeholder="Revenu" required>
-    <input type="number" min="1" max="10" name="fatigue" placeholder="Fatigue (1-10)" required>
+        <input type="number" name="age" placeholder="Âge" required>
+        <input type="number" name="experience" placeholder="Expérience" required>
+        <input type="number" step="0.1" name="heures_travail" placeholder="Heures" required>
+        <input type="number" name="clients" placeholder="Clients" required>
+        <input type="number" step="0.1" name="revenu" placeholder="Revenu" required>
+        <input type="number" min="1" max="10" name="fatigue" placeholder="Fatigue" required>
 
-    <select name="accident">
-        <option value="0">Pas d'accident</option>
-        <option value="1">Accident</option>
-    </select>
+        <select name="accident">
+            <option value="0">Pas d'accident</option>
+            <option value="1">Accident</option>
+        </select>
 
-    <button type="submit">Envoyer</button>
+        <button type="submit">Envoyer</button>
 
-</form>
+    </form>
+</div>
 
 </body>
 </html>

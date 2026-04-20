@@ -1,36 +1,31 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Dashboard</title>
+    <title>Benskin Data</title>
     <link rel="stylesheet" href="/static/style.css">
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
 <body>
 
 <div class="container">
+    <h1>Analyse Conducteurs Benskin</h1>
 
-    <h1>📊 Dashboard Analyse</h1>
+    <form action="/submit" method="post" class="form">
 
-    <div class="cards">
+        <input type="number" name="age" placeholder="Âge" required>
+        <input type="number" name="experience" placeholder="Expérience" required>
+        <input type="number" step="0.1" name="heures_travail" placeholder="Heures" required>
+        <input type="number" name="clients" placeholder="Clients" required>
+        <input type="number" step="0.1" name="revenu" placeholder="Revenu" required>
+        <input type="number" min="1" max="10" name="fatigue" placeholder="Fatigue" required>
 
-        <div class="card">
-            Total conducteurs: {{ stats.total }}
-        </div>
+        <select name="accident">
+            <option value="0">Pas d'accident</option>
+            <option value="1">Accident</option>
+        </select>
 
-        <div class="card">
-            Revenu moyen: {{ stats.revenu_moyen }}
-        </div>
+        <button type="submit">Envoyer</button>
 
-        <div class="card">
-            Fatigue moyenne: {{ stats.fatigue_moyenne }}
-        </div>
-
-        <div class="card">
-            Taux accident: {{ stats.accident_rate }}%
-        </div>
-
-    </div>
-
+    </form>
 </div>
 
 </body>
