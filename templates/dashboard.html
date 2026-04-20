@@ -1,32 +1,54 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Benskin Data</title>
+    <title>Dashboard Intelligent</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
 
-<div class="container">
-    <h1>Analyse Conducteurs Benskin</h1>
+<h1 style="text-align:center;">Dashboard Intelligent</h1>
 
-    <form action="/submit" method="post" class="form">
-
-        <input type="number" name="age" placeholder="Âge" required>
-        <input type="number" name="experience" placeholder="Expérience" required>
-        <input type="number" step="0.1" name="heures_travail" placeholder="Heures" required>
-        <input type="number" name="clients" placeholder="Clients" required>
-        <input type="number" step="0.1" name="revenu" placeholder="Revenu" required>
-        <input type="number" min="1" max="10" name="fatigue" placeholder="Fatigue" required>
-
-        <select name="accident">
-            <option value="0">Pas d'accident</option>
-            <option value="1">Accident</option>
-        </select>
-
-        <button type="submit">Envoyer</button>
-
-    </form>
+<div class="grid">
+    <div id="graph1"></div>
+    <div id="graph2"></div>
 </div>
+
+<script>
+    // ✅ Injection propre et sécurisée JSON
+    const data = JSON.parse('{{ graph_data | tojson | safe }}');
+
+    // ===== Graph 1 : Revenu vs Heures =====
+    Plotly.newPlot("graph1", [{
+        x: data.heures,
+        y: data.revenu,
+        mode: "markers",
+        type: "scatter"
+    }], {
+        title: "Revenu vs Heures",
+        paper_bgcolor: "#0f172a",
+        plot_bgcolor: "#0f172a",
+        font: { color: "white" }
+    });
+
+    // ===== Graph 2 : Clustering =====
+    Plotly.newPlot("graph2", [{
+        x: data.revenu,
+        y: data.fatigue,
+        mode: "markers",
+        type: "scatter",
+        marker: {
+            size: 10,
+            color: data.clusters,
+            colorscale: "Viridis"
+        }
+    }], {
+        title: "Clusters Conducteurs",
+        paper_bgcolor: "#0f172a",
+        plot_bgcolor: "#0f172a",
+        font: { color: "white" }
+    });
+</script>
 
 </body>
 </html>
