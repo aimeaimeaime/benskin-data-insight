@@ -132,7 +132,6 @@
 <head>
     <meta charset="UTF-8">
     <title>Analyse IA - Secteur Moto-Taxi (Benskin)</title>
-    <!-- On utilise un lien ultra-fiable pour Plotly -->
     <script src="https://plot.ly"></script>
     <link rel="stylesheet" href="/static/style.css">
 </head>
@@ -142,31 +141,21 @@
     <h1 style="text-align:center; color: #3b82f6;">Observatoire Intelligent du Transport Urbain</h1>
     
     <div class="card" style="margin-bottom: 30px; border-left: 5px solid #3b82f6; background: #1e293b; padding: 20px; border-radius: 12px;">
-        <h3 style="color: #3b82f6; margin-top: 0;">🚀 Domaine d'application : Les Moto-Taxis (Benskin)</h3>
-        <p style="color: white;">Application d'Intelligence Artificielle pour la modernisation du secteur des moto-taxis.</p>
-        <ul style="color: #cbd5e1;">
-            <li><strong>Régression :</strong> Optimisation des revenus journaliers.</li>
-            <li><strong>Classification :</strong> Prédiction des risques d'accidents.</li>
-            <li><strong>Clustering :</strong> Segmentation des profils de fatigue.</li>
-        </ul>
+        <h3 style="color: #3b82f6; margin-top: 0;">🚀 Domaine : Moto-Taxis (Benskin)</h3>
+        <p style="color: white;">Application d'Intelligence Artificielle pour la modernisation du secteur.</p>
     </div>
 
-    <div style="text-align:center; margin-bottom: 20px;">
-        <a href="/" style="color: #3b82f6; text-decoration: none; font-weight: bold;">+ Ajouter de nouvelles données</a>
-    </div>
-
-    <!-- Les conteneurs avec une hauteur fixe pour être sûr qu'ils apparaissent -->
     <div class="grid">
-        <div class="card"><div id="graph1" style="height: 400px;"></div></div>
-        <div class="card"><div id="graph2" style="height: 400px;"></div></div>
+        <div class="card"><div id="graph1" style="height: 400px; width: 100%;"></div></div>
+        <div class="card"><div id="graph2" style="height: 400px; width: 100%;"></div></div>
     </div>
 
     <div class="card" style="margin-top: 20px;">
-        <div id="graph3" style="height: 400px;"></div>
+        <div id="graph3" style="height: 400px; width: 100%;"></div>
     </div>
 
     <div class="card" style="margin-top: 20px; overflow-x: auto;">
-        <h3 style="color: #3b82f6;">Données sources (Supabase Cloud)</h3>
+        <h3 style="color: #3b82f6;">Données sources (Supabase)</h3>
         <table border="1" style="width:100%; border-collapse: collapse; text-align: left; color: white;">
             <thead>
                 <tr style="background: #3b82f6;">
@@ -176,12 +165,8 @@
             <tbody>
                 {% for row in table_data %}
                 <tr style="border-bottom: 1px solid #334155;">
-                    <td>{{ row.age }}</td>
-                    <td>{{ row.experience }} ans</td>
-                    <td>{{ row.heures_travail }}h</td>
-                    <td>{{ row.revenu }}</td>
-                    <td>{{ row.fatigue }}/10</td>
-                    <td>{{ 'OUI' if row.accident else 'NON' }}</td>
+                    <td>{{ row.age }}</td><td>{{ row.experience }} ans</td><td>{{ row.heures_travail }}h</td>
+                    <td>{{ row.revenu }}</td><td>{{ row.fatigue }}/10</td><td>{{ 'OUI' if row.accident else 'NON' }}</td>
                     <td style="font-weight: bold; color: #10b981;">{{ row.risque_score | round(1) }}%</td>
                 </tr>
                 {% endfor %}
@@ -191,43 +176,39 @@
 </div>
 
 <script>
-    // On enveloppe tout dans un bloc try/catch pour voir les erreurs s'il y en a
-    try {
-        const data = JSON.parse('{{ graph_data | tojson | safe }}');
+    // Chargement ultra-sécurisé
+    const rawData = '{{ graph_data | tojson | safe }}';
+    const data = JSON.parse(rawData);
 
-        const layoutBase = {
-            paper_bgcolor: "#1e293b",
-            plot_bgcolor: "#1e293b",
-            font: {color: "white"},
-            margin: {t: 50, b: 50, l: 50, r: 50}
-        };
+    const layoutBase = {
+        paper_bgcolor: "#1e293b",
+        plot_bgcolor: "#1e293b",
+        font: {color: "white"}
+    };
 
-        // GRAPH 1
-        Plotly.newPlot("graph1", [
-            { x: data.heures, y: data.revenu, mode: "markers", name: "Réel", marker: {color: "#3b82f6"} },
-            { x: data.heures, y: data.revenu_predit, mode: "lines", name: "IA", line: {color: "#ef4444"} }
-        ], { ...layoutBase, title: "Revenu vs Heures" });
+    // GRAPH 1 : RÉGRESSION
+    Plotly.newPlot("graph1", [
+        { x: data.heures, y: data.revenu, mode: "markers", name: "Réel" },
+        { x: data.heures, y: data.revenu_predit, mode: "lines", name: "IA", line: {color: "red"} }
+    ], { ...layoutBase, title: "Revenu vs Heures" });
 
-        // GRAPH 2
-        Plotly.newPlot("graph2", [{
-            x: data.revenu, y: data.fatigue, mode: "markers",
-            marker: { size: 12, color: data.clusters, colorscale: "Viridis", showscale: true }
-        }], { ...layoutBase, title: "Clusters de Fatigue" });
+    // GRAPH 2 : CLUSTERING
+    Plotly.newPlot("graph2", [{
+        x: data.revenu, y: data.fatigue, mode: "markers",
+        marker: { size: 12, color: data.clusters, colorscale: "Viridis" }
+    }], { ...layoutBase, title: "Segments de Fatigue" });
 
-        // GRAPH 3 : LA CORRECTION EST ICI [0, 100]
-        Plotly.newPlot("graph3", [{
-            x: data.risque.map((_, i) => "C" + (i + 1)),
-            y: data.risque, type: "bar",
-            marker: { color: data.risque.map(r => r > 50 ? '#ef4444' : '#3b82f6') }
-        }], { 
-            ...layoutBase, 
-            title: "Risque d'Accident (%)",
-            yaxis: { range: [0, 100] } 
-        });
-
-    } catch (e) {
-        console.error("Erreur de rendu Plotly :", e);
-    }
+    // GRAPH 3 : CLASSIFICATION (Version simplifiée pour éviter tout bug)
+    Plotly.newPlot("graph3", [{
+        x: data.risque.map((_, i) => "C" + (i + 1)),
+        y: data.risque,
+        type: "bar",
+        marker: { color: "#3b82f6" }
+    }], { 
+        ...layoutBase, 
+        title: "Risque d'Accident (%)",
+        yaxis: { range: [0, 100] }
+    });
 </script>
 </body>
 </html>
