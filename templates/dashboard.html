@@ -126,12 +126,11 @@
 
 
 
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Analyse IA - Secteur Moto-Taxi (Benskin)</title>
+    <title>Analyse IA - Moto-Taxi</title>
     <script src="https://plot.ly"></script>
     <link rel="stylesheet" href="/static/style.css">
 </head>
@@ -140,34 +139,30 @@
 <div style="max-width: 1200px; margin: auto; padding: 20px;">
     <h1 style="text-align:center; color: #3b82f6;">Observatoire Intelligent du Transport Urbain</h1>
     
-    <div class="card" style="margin-bottom: 30px; border-left: 5px solid #3b82f6; background: #1e293b; padding: 20px; border-radius: 12px;">
-        <h3 style="color: #3b82f6; margin-top: 0;">🚀 Domaine : Moto-Taxis (Benskin)</h3>
-        <p style="color: white;">Application d'Intelligence Artificielle pour la modernisation du secteur.</p>
+    <div class="card" style="margin-bottom: 20px; background: #1e293b; padding: 20px; border-radius: 12px; color: white; border-left: 5px solid #3b82f6;">
+        <h3 style="color: #3b82f6;">🚀 Domaine : Moto-Taxis (Benskin)</h3>
+        <p>Analyse IA pour l'optimisation des revenus et la sécurité routière.</p>
     </div>
 
+    <!-- Divs pour les graphiques avec hauteurs fixes -->
     <div class="grid">
-        <div class="card"><div id="graph1" style="height: 400px; width: 100%;"></div></div>
-        <div class="card"><div id="graph2" style="height: 400px; width: 100%;"></div></div>
+        <div class="card"><div id="g1" style="height:400px;"></div></div>
+        <div class="card"><div id="g2" style="height:400px;"></div></div>
     </div>
+    <div class="card" style="margin-top:20px;"><div id="g3" style="height:400px;"></div></div>
 
-    <div class="card" style="margin-top: 20px;">
-        <div id="graph3" style="height: 400px; width: 100%;"></div>
-    </div>
+    <!-- Stockage des données invisible pour éviter le bug de mon interface -->
+    <div id="data-storage" style="display:none;">{{ graph_data | safe }}</div>
 
-    <div class="card" style="margin-top: 20px; overflow-x: auto;">
-        <h3 style="color: #3b82f6;">Données sources (Supabase)</h3>
-        <table border="1" style="width:100%; border-collapse: collapse; text-align: left; color: white;">
-            <thead>
-                <tr style="background: #3b82f6;">
-                    <th>Âge</th><th>Expérience</th><th>Heures</th><th>Revenu</th><th>Fatigue</th><th>Accident</th><th>Risque IA</th>
-                </tr>
-            </thead>
+    <div class="card" style="margin-top: 20px; background: #1e293b; padding: 15px; color: white;">
+        <h3>Données sources (Supabase)</h3>
+        <table style="width:100%; border-collapse: collapse; text-align: left;">
+            <thead><tr style="background: #3b82f6;"><th>Âge</th><th>Exp.</th><th>Heures</th><th>Revenu</th><th>Fatigue</th><th>Risque IA</th></tr></thead>
             <tbody>
                 {% for row in table_data %}
                 <tr style="border-bottom: 1px solid #334155;">
-                    <td>{{ row.age }}</td><td>{{ row.experience }} ans</td><td>{{ row.heures_travail }}h</td>
-                    <td>{{ row.revenu }}</td><td>{{ row.fatigue }}/10</td><td>{{ 'OUI' if row.accident else 'NON' }}</td>
-                    <td style="font-weight: bold; color: #10b981;">{{ row.risque_score | round(1) }}%</td>
+                    <td>{{ row.age }}</td><td>{{ row.experience }}</td><td>{{ row.heures_travail }}</td>
+                    <td>{{ row.revenu }}</td><td>{{ row.fatigue }}</td><td><strong>{{ row.risque_score | round(1) }}%</strong></td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -176,39 +171,29 @@
 </div>
 
 <script>
-    // Chargement ultra-sécurisé
-    const rawData = '{{ graph_data | tojson | safe }}';
-    const data = JSON.parse(rawData);
+    // Méthode de récupération ultra-robuste
+    const jsonContainer = document.getElementById('data-storage');
+    const dataIA = JSON.parse(jsonContainer.textContent);
+    
+    const layout = { paper_bgcolor: "#1e293b", plot_bgcolor: "#1e293b", font: {color: "white"} };
 
-    const layoutBase = {
-        paper_bgcolor: "#1e293b",
-        plot_bgcolor: "#1e293b",
-        font: {color: "white"}
-    };
+    // Graph 1
+    Plotly.newPlot("g1", [
+        { x: dataIA.heures, y: dataIA.revenu, mode: "markers", name: "Réel" },
+        { x: dataIA.heures, y: dataIA.revenu_predit, mode: "lines", name: "IA", line: {color: "red"} }
+    ], { ...layout, title: "Revenu vs Heures" });
 
-    // GRAPH 1 : RÉGRESSION
-    Plotly.newPlot("graph1", [
-        { x: data.heures, y: data.revenu, mode: "markers", name: "Réel" },
-        { x: data.heures, y: data.revenu_predit, mode: "lines", name: "IA", line: {color: "red"} }
-    ], { ...layoutBase, title: "Revenu vs Heures" });
+    // Graph 2
+    Plotly.newPlot("g2", [{
+        x: dataIA.revenu, y: dataIA.fatigue, mode: "markers",
+        marker: { size: 12, color: dataIA.clusters, colorscale: "Viridis" }
+    }], { ...layout, title: "Segments Fatigue" });
 
-    // GRAPH 2 : CLUSTERING
-    Plotly.newPlot("graph2", [{
-        x: data.revenu, y: data.fatigue, mode: "markers",
-        marker: { size: 12, color: data.clusters, colorscale: "Viridis" }
-    }], { ...layoutBase, title: "Segments de Fatigue" });
-
-    // GRAPH 3 : CLASSIFICATION (Version simplifiée pour éviter tout bug)
-    Plotly.newPlot("graph3", [{
-        x: data.risque.map((_, i) => "C" + (i + 1)),
-        y: data.risque,
-        type: "bar",
-        marker: { color: "#3b82f6" }
-    }], { 
-        ...layoutBase, 
-        title: "Risque d'Accident (%)",
-        yaxis: { range: [0, 100] }
-    });
+    // Graph 3
+    Plotly.newPlot("g3", [{
+        x: dataIA.risque.map((_, i) => "C" + (i + 1)),
+        y: dataIA.risque, type: "bar", marker: {color: "#3b82f6"}
+    }], { ...layout, title: "Risque Accident (%)" });
 </script>
 </body>
 </html>
