@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -110,5 +110,134 @@
     });
 </script>
 
+</body>
+</html> -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Analyse IA - Secteur Moto-Taxi (Benskin)</title>
+    <script src="https://plot.ly"></script>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div style="max-width: 1200px; margin: auto; padding: 20px;">
+    <h1 style="text-align:center; color: #3b82f6;">Observatoire Intelligent du Transport Urbain</h1>
+    
+    <!-- SECTION CONTEXTE : CRÉATIVITÉ ET IMAGINATION -->
+    <div class="card" style="margin-bottom: 30px; border-left: 5px solid #3b82f6;">
+        <h3>🚀 Contexte du Projet : Secteur des Moto-Taxis</h3>
+        <p>Cette application est conçue pour moderniser le secteur informel du transport urbain (**Benskin**). L'objectif est d'utiliser l'<strong>Intelligence Artificielle</strong> pour transformer les données collectées sur le terrain en outils de décision. </p>
+        <p>Elle permet de :
+            <ul>
+                <li>Optimiser les revenus des conducteurs via la <strong>Régression</strong>.</li>
+                <li>Améliorer la sécurité routière en prédisant les risques d'accidents (<strong>Classification</strong>).</li>
+                <li>Segmenter les profils pour des politiques sociales ciblées (<strong>Clustering</strong>).</li>
+            </ul>
+        </p>
+    </div>
+
+    <div style="text-align:center; margin-bottom: 20px;">
+        <a href="/" style="color: #3b82f6; text-decoration: none; font-weight: bold;">+ Ajouter de nouvelles données conducteur</a>
+    </div>
+
+    <!-- GRAPHIQUES -->
+    <div class="grid">
+        <div class="card">
+            <div id="graph1"></div>
+            <div class="analysis">
+                <h3>1. Régression Linéaire Multiple</h3>
+                <p><strong>Méthode :</strong> Modélisation du revenu basée sur les heures et le flux de clients.</p>
+                <p><strong>Validation :</strong> Score R² (Précision) : <span id="r2-score" style="font-weight: bold; color: #10b981;"></span></p>
+            </div>
+        </div>
+
+        <div class="card">
+            <div id="graph2"></div>
+            <div class="analysis">
+                <h3>2. Classification Non-Supervisée (K-Means)</h3>
+                <p><strong>Méthode :</strong> Segmentation automatique en 3 clusters (Ratio Revenu/Fatigue).</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card" style="margin-top: 20px;">
+        <div id="graph3"></div>
+        <div class="analysis">
+            <h3>3. Classification Supervisée (Random Forest)</h3>
+            <p><strong>Méthode :</strong> Algorithme entraîné pour prédire la probabilité d'accident selon l'expérience et l'âge.</p>
+        </div>
+    </div>
+
+    <!-- TABLEAU DE DONNÉES -->
+    <div class="card" style="margin-top: 20px; overflow-x: auto;">
+        <h3>Base de Données en Temps Réel (Source : Supabase Cloud)</h3>
+        <table border="1" style="width:100%; border-collapse: collapse; text-align: left; margin-top: 10px;">
+            <thead>
+                <tr style="background: #3b82f6; color: white;">
+                    <th>Âge</th><th>Expérience</th><th>Heures</th><th>Revenu (CFA)</th><th>Fatigue /10</th><th>Accident</th><th>Risque IA (%)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in table_data %}
+                <tr style="border-bottom: 1px solid #334155;">
+                    <td>{{ row.age }}</td>
+                    <td>{{ row.experience }} ans</td>
+                    <td>{{ row.heures_travail }}h</td>
+                    <td>{{ row.revenu }}</td>
+                    <td>{{ row.fatigue }}</td>
+                    <td>{{ 'OUI' if row.accident else 'NON' }}</td>
+                    <td><strong>{{ row.risque_score | round(1) }}%</strong></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // Correction de l'injection JSON
+    const data = JSON.parse('{{ graph_data | tojson | safe }}');
+    document.getElementById('r2-score').innerText = data.r2;
+
+    // GRAPH 1
+    Plotly.newPlot("graph1", [
+        { x: data.heures, y: data.revenu, mode: "markers", name: "Réel", marker: {color: "#3b82f6"} },
+        { x: data.heures, y: data.revenu_predit, mode: "lines", name: "Modèle IA", line: {color: "#ef4444", width: 3} }
+    ], { title: "Modélisation du Revenu", paper_bgcolor: "#1e293b", plot_bgcolor: "#1e293b", font: {color: "white"} });
+
+    // GRAPH 2
+    Plotly.newPlot("graph2", [{
+        x: data.revenu, y: data.fatigue, mode: "markers",
+        marker: { size: 14, color: data.clusters, colorscale: "Viridis", showscale: true }
+    }], { title: "Segmentation des Conducteurs", paper_bgcolor: "#1e293b", plot_bgcolor: "#1e293b", font: {color: "white"} });
+
+    // GRAPH 3 (CORRIGÉ)
+    Plotly.newPlot("graph3", [{
+        x: data.risque.map((_, i) => "Conducteur " + (i + 1)),
+        y: data.risque, type: "bar",
+        marker: { color: data.risque.map(r => r > 50 ? '#ef4444' : '#10b981') }
+    }], { 
+        title: "Prédiction de Risque d'Accident (%)", 
+        paper_bgcolor: "#1e293b", 
+        plot_bgcolor: "#1e293b", 
+        font: {color: "white"},
+        yaxis: { range: [0, 100] } 
+    });
+</script>
 </body>
 </html>
