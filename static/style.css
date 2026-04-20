@@ -1,47 +1,7 @@
-
-
-
-
-body {
-    font-family: Arial;
-    background: #0f172a;
-    color: white;
-    margin: 0;
-}
-
-.container {
-    max-width: 500px;
-    margin: auto;
-    padding: 20px;
-}
-
-.form {
-    display: flex;
-    flex-direction: column;
-}
-
-input, select, button {
-    margin: 10px 0;
-    padding: 10px;
-    border-radius: 8px;
-    border: none;
-}
-
-button {
-    background: #3b82f6;
-    color: white;
-    cursor: pointer;
-}
-
-.grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    padding: 20px;
-}
-
-@media (max-width: 768px) {
-    .grid {
-        grid-template-columns: 1fr;
-    }
-}
+body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: white; margin: 0; padding: 20px; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.card { background: #1e293b; border-radius: 12px; padding: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+.analysis { padding: 15px; border-top: 1px solid #334155; margin-top: 10px; }
+h3 { color: #3b82f6; margin-top: 0; }
+table th, table td { padding: 12px; border: 1px solid #334155; }
+@media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }

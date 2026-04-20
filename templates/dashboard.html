@@ -2,92 +2,113 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Intelligent - Analyse Benskin</title>
-    <!-- Chargement de Plotly.js -->
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <title>Analyse Décisionnelle - IA Transport</title>
+    <script src="https://plot.ly"></script>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
 
-    <h1 style="text-align:center; margin-top: 20px;">Dashboard d'Analyse des Conducteurs</h1>
+<h1 style="text-align:center; margin-top: 20px;">Système Intelligent d'Analyse des Conducteurs</h1>
+
+<div style="text-align:center; margin-bottom: 20px;">
+    <a href="/" style="color: #3b82f6; text-decoration: none;">← Ajouter de nouvelles données</a>
+</div>
+
+<div class="grid">
+    <div class="card">
+        <div id="graph1"></div>
+        <div class="analysis">
+            <h3>1. Régression Linéaire Multiple</h3>
+            <p><strong>Méthode :</strong> Modélisation du revenu basée sur les heures et le flux de clients.</p>
+            <p><strong>Validation :</strong> Score R² (Précision) : <span id="r2-score" style="font-weight: bold; color: #10b981;"></span></p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div id="graph2"></div>
+        <div class="analysis">
+            <h3>2. Classification Non-Supervisée (K-Means)</h3>
+            <p><strong>Méthode :</strong> Segmentation automatique en 3 clusters (Ratio Revenu/Fatigue).</p>
+            <p><strong>Analyse :</strong> Identification des profils de conducteurs par comportement.</p>
+        </div>
+    </div>
+</div>
+
+<div class="card" style="margin: 20px;">
+    <div id="graph3"></div>
+    <div class="analysis">
+        <h3>3. Classification Supervisée (Random Forest)</h3>
+        <p><strong>Méthode :</strong> Prédiction de probabilité d'accident selon l'expérience et l'âge.</p>
+        <p><strong>Robustesse :</strong> Optimisation par sélection de variables (Point 3 & 4 du programme).</p>
+    </div>
+</div>
+
+<div class="card" style="margin: 20px; overflow-x: auto;">
+    <h3 style="margin-bottom: 15px;">Base de Données en Temps Réel (Source : Supabase Cloud)</h3>
+    <table border="1" style="width:100%; border-collapse: collapse; text-align: left;">
+        <thead>
+            <tr style="background: #3b82f6; color: white;">
+                <th>Âge</th>
+                <th>Expérience</th>
+                <th>Heures</th>
+                <th>Revenu (CFA)</th>
+                <th>Fatigue /10</th>
+                <th>Accident</th>
+                <th>Risque IA (%)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in table_data %}
+            <tr style="border-bottom: 1px solid #334155;">
+                <td>{{ row.age }}</td>
+                <td>{{ row.experience }} ans</td>
+                <td>{{ row.heures_travail }}h</td>
+                <td>{{ row.revenu }}</td>
+                <td>{{ row.fatigue }}</td>
+                <td>{{ 'OUI' if row.accident else 'NON' }}</td>
+                <td><strong>{{ row.risque_score | round(1) }}%</strong></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    // ✅ Injection sécurisée pour éviter les erreurs d'éditeur
+    const dataString = '{{ graph_data | tojson | safe }}';
+    const data = JSON.parse(dataString);
     
-    <div style="text-align:center; margin-bottom: 20px;">
-        <a href="/" style="color: #3b82f6; text-decoration: none;">← Ajouter de nouvelles données</a>
-    </div>
+    document.getElementById('r2-score').innerText = data.r2;
 
-    <div class="grid">
-        <!-- Graphique 1 : Régression Linéaire -->
-        <div id="graph1" class="chart-container"></div>
-        
-        <!-- Graphique 2 : Clustering K-Means -->
-        <div id="graph2" class="chart-container"></div>
-    </div>
+    // --- GRAPH 1 : RÉGRESSION ---
+    Plotly.newPlot("graph1", [
+        { x: data.heures, y: data.revenu, mode: "markers", name: "Réel", marker: {color: "#3b82f6"} },
+        { x: data.heures, y: data.revenu_predit, mode: "lines", name: "Modèle", line: {color: "#ef4444", width: 3} }
+    ], {
+        title: "Modélisation du Revenu",
+        paper_bgcolor: "#1e293b", plot_bgcolor: "#1e293b", font: {color: "white"}
+    });
 
-    <script>
-        // Récupération sécurisée des données envoyées par Flask
-        // Note : On n'utilise pas JSON.parse() car | tojson | safe génère déjà un objet JS valide
-// Remplace la ligne 30 par celle-ci
-const data = JSON.parse('{{ graph_data | tojson | safe }}');
+    // --- GRAPH 2 : CLUSTERING ---
+    Plotly.newPlot("graph2", [{
+        x: data.revenu, y: data.fatigue, mode: "markers",
+        marker: { size: 14, color: data.clusters, colorscale: "Viridis", showscale: true }
+    }], {
+        title: "Segmentation des Conducteurs",
+        paper_bgcolor: "#1e293b", plot_bgcolor: "#1e293b", font: {color: "white"}
+    });
 
-        // ===== GRAPH 1 : RÉGRESSION LINÉAIRE (Analyse Prédictive) =====
-        const traceReel = {
-            x: data.heures,
-            y: data.revenu,
-            name: "Données Réelles",
-            mode: "markers",
-            type: "scatter",
-            marker: { color: '#3b82f6', size: 10 }
-        };
-
-        const tracePrediction = {
-            x: data.heures,
-            y: data.revenu_predit,
-            name: "Modèle de Régression",
-            mode: "lines",
-            line: { color: '#ef4444', width: 3 }
-        };
-
-        const layout1 = {
-            title: "Revenu vs Heures de Travail",
-            xaxis: { title: "Heures de Travail" },
-            yaxis: { title: "Revenu (CFA)" },
-            paper_bgcolor: "#1e293b",
-            plot_bgcolor: "#1e293b",
-            font: { color: "white" },
-            legend: { orientation: 'h', y: -0.2 }
-        };
-
-        Plotly.newPlot("graph1", [traceReel, tracePrediction], layout1);
-
-
-        // ===== GRAPH 2 : CLUSTERING K-MEANS (Analyse Non-Supervisée) =====
-        const traceClusters = {
-            x: data.revenu,
-            y: data.fatigue,
-            mode: "markers",
-            type: "scatter",
-            marker: {
-                size: 14,
-                color: data.clusters, // Les IDs des clusters (0, 1, 2)
-                colorscale: "Viridis",
-                showscale: true,
-                colorbar: { title: "Cluster ID", tickcolor: "white" }
-            },
-            text: data.clusters.map(c => "Groupe " + c)
-        };
-
-        const layout2 = {
-            title: "Segmentation des Conducteurs (Fatigue vs Revenu)",
-            xaxis: { title: "Revenu" },
-            yaxis: { title: "Niveau de Fatigue (1-10)" },
-            paper_bgcolor: "#1e293b",
-            plot_bgcolor: "#1e293b",
-            font: { color: "white" }
-        };
-
-        Plotly.newPlot("graph2", [traceClusters], layout2);
-    </script>
+    // --- GRAPH 3 : CLASSIFICATION ---
+    Plotly.newPlot("graph3", [{
+        x: data.risque.map((_, i) => "Cond. " + (i + 1)),
+        y: data.risque, type: "bar",
+        marker: { color: data.risque.map(r => r > 50 ? '#ef4444' : '#10b981') }
+    }], {
+        title: "Prédiction de Risque d'Accident (%)",
+        paper_bgcolor: "#1e293b", plot_bgcolor: "#1e293b", font: {color: "white"},
+        yaxis: { range: [0, 100] }
+    });
+</script>
 
 </body>
 </html>
