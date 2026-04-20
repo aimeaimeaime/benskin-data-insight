@@ -125,11 +125,14 @@
 
 
 
+
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <title>Analyse IA - Secteur Moto-Taxi (Benskin)</title>
+    <!-- LIEN TECHNIQUE OBLIGATOIRE POUR LES GRAPHES -->
     <script src="https://plot.ly"></script>
     <link rel="stylesheet" href="/static/style.css">
 </head>
@@ -138,58 +141,33 @@
 <div style="max-width: 1200px; margin: auto; padding: 20px;">
     <h1 style="text-align:center; color: #3b82f6;">Observatoire Intelligent du Transport Urbain</h1>
     
-    <!-- SECTION CONTEXTE : CRÉATIVITÉ ET IMAGINATION -->
-    <div class="card" style="margin-bottom: 30px; border-left: 5px solid #3b82f6;">
-        <h3>🚀 Contexte du Projet : Secteur des Moto-Taxis</h3>
-        <p>Cette application est conçue pour moderniser le secteur informel du transport urbain (**Benskin**). L'objectif est d'utiliser l'<strong>Intelligence Artificielle</strong> pour transformer les données collectées sur le terrain en outils de décision. </p>
-        <p>Elle permet de :
-            <ul>
-                <li>Optimiser les revenus des conducteurs via la <strong>Régression</strong>.</li>
-                <li>Améliorer la sécurité routière en prédisant les risques d'accidents (<strong>Classification</strong>).</li>
-                <li>Segmenter les profils pour des politiques sociales ciblées (<strong>Clustering</strong>).</li>
-            </ul>
-        </p>
+    <div class="card" style="margin-bottom: 30px; border-left: 5px solid #3b82f6; background: #1e293b; padding: 20px; border-radius: 12px;">
+        <h3 style="color: #3b82f6; margin-top: 0;">🚀 Domaine d'application : Les Moto-Taxis (Benskin)</h3>
+        <p style="color: white;">Cette application utilise l'Intelligence Artificielle pour moderniser le secteur des conducteurs de moto-taxis.</p>
+        <ul style="color: #cbd5e1;">
+            <li><strong>Régression :</strong> Optimisation des revenus journaliers.</li>
+            <li><strong>Classification :</strong> Prédiction des risques d'accidents.</li>
+            <li><strong>Clustering :</strong> Segmentation des profils de fatigue.</li>
+        </ul>
     </div>
 
     <div style="text-align:center; margin-bottom: 20px;">
-        <a href="/" style="color: #3b82f6; text-decoration: none; font-weight: bold;">+ Ajouter de nouvelles données conducteur</a>
+        <a href="/" style="color: #3b82f6; text-decoration: none; font-weight: bold;">+ Ajouter de nouvelles données</a>
     </div>
 
-    <!-- GRAPHIQUES -->
     <div class="grid">
-        <div class="card">
-            <div id="graph1"></div>
-            <div class="analysis">
-                <h3>1. Régression Linéaire Multiple</h3>
-                <p><strong>Méthode :</strong> Modélisation du revenu basée sur les heures et le flux de clients.</p>
-                <p><strong>Validation :</strong> Score R² (Précision) : <span id="r2-score" style="font-weight: bold; color: #10b981;"></span></p>
-            </div>
-        </div>
-
-        <div class="card">
-            <div id="graph2"></div>
-            <div class="analysis">
-                <h3>2. Classification Non-Supervisée (K-Means)</h3>
-                <p><strong>Méthode :</strong> Segmentation automatique en 3 clusters (Ratio Revenu/Fatigue).</p>
-            </div>
-        </div>
+        <div class="card"><div id="graph1"></div></div>
+        <div class="card"><div id="graph2"></div></div>
     </div>
 
-    <div class="card" style="margin-top: 20px;">
-        <div id="graph3"></div>
-        <div class="analysis">
-            <h3>3. Classification Supervisée (Random Forest)</h3>
-            <p><strong>Méthode :</strong> Algorithme entraîné pour prédire la probabilité d'accident selon l'expérience et l'âge.</p>
-        </div>
-    </div>
+    <div class="card" style="margin-top: 20px;"><div id="graph3"></div></div>
 
-    <!-- TABLEAU DE DONNÉES -->
     <div class="card" style="margin-top: 20px; overflow-x: auto;">
-        <h3>Base de Données en Temps Réel (Source : Supabase Cloud)</h3>
-        <table border="1" style="width:100%; border-collapse: collapse; text-align: left; margin-top: 10px;">
+        <h3 style="color: #3b82f6;">Données sources (Supabase Cloud)</h3>
+        <table border="1" style="width:100%; border-collapse: collapse; text-align: left; color: white;">
             <thead>
-                <tr style="background: #3b82f6; color: white;">
-                    <th>Âge</th><th>Expérience</th><th>Heures</th><th>Revenu (CFA)</th><th>Fatigue /10</th><th>Accident</th><th>Risque IA (%)</th>
+                <tr style="background: #3b82f6;">
+                    <th>Âge</th><th>Expérience</th><th>Heures</th><th>Revenu</th><th>Fatigue</th><th>Accident</th><th>Risque IA</th>
                 </tr>
             </thead>
             <tbody>
@@ -199,9 +177,9 @@
                     <td>{{ row.experience }} ans</td>
                     <td>{{ row.heures_travail }}h</td>
                     <td>{{ row.revenu }}</td>
-                    <td>{{ row.fatigue }}</td>
+                    <td>{{ row.fatigue }}/10</td>
                     <td>{{ 'OUI' if row.accident else 'NON' }}</td>
-                    <td><strong>{{ row.risque_score | round(1) }}%</strong></td>
+                    <td style="font-weight: bold; color: #10b981;">{{ row.risque_score | round(1) }}%</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -210,32 +188,29 @@
 </div>
 
 <script>
-    // Correction de l'injection JSON
+    // Chargement sécurisé des données
     const data = JSON.parse('{{ graph_data | tojson | safe }}');
-    document.getElementById('r2-score').innerText = data.r2;
 
-    // GRAPH 1
+    // GRAPH 1 : RÉGRESSION
     Plotly.newPlot("graph1", [
         { x: data.heures, y: data.revenu, mode: "markers", name: "Réel", marker: {color: "#3b82f6"} },
-        { x: data.heures, y: data.revenu_predit, mode: "lines", name: "Modèle IA", line: {color: "#ef4444", width: 3} }
-    ], { title: "Modélisation du Revenu", paper_bgcolor: "#1e293b", plot_bgcolor: "#1e293b", font: {color: "white"} });
+        { x: data.heures, y: data.revenu_predit, mode: "lines", name: "IA", line: {color: "#ef4444"} }
+    ], { title: "Revenu vs Heures", paper_bgcolor: "#1e293b", plot_bgcolor: "#1e293b", font: {color: "white"} });
 
-    // GRAPH 2
+    // GRAPH 2 : CLUSTERING
     Plotly.newPlot("graph2", [{
         x: data.revenu, y: data.fatigue, mode: "markers",
-        marker: { size: 14, color: data.clusters, colorscale: "Viridis", showscale: true }
-    }], { title: "Segmentation des Conducteurs", paper_bgcolor: "#1e293b", plot_bgcolor: "#1e293b", font: {color: "white"} });
+        marker: { size: 12, color: data.clusters, colorscale: "Viridis", showscale: true }
+    }], { title: "Clusters de Conducteurs", paper_bgcolor: "#1e293b", plot_bgcolor: "#1e293b", font: {color: "white"} });
 
-    // GRAPH 3 (CORRIGÉ)
+    // GRAPH 3 : CLASSIFICATION
     Plotly.newPlot("graph3", [{
-        x: data.risque.map((_, i) => "Conducteur " + (i + 1)),
+        x: data.risque.map((_, i) => "Cond. " + (i + 1)),
         y: data.risque, type: "bar",
-        marker: { color: data.risque.map(r => r > 50 ? '#ef4444' : '#10b981') }
+        marker: { color: data.risque.map(r => r > 50 ? '#ef4444' : '#3b82f6') }
     }], { 
-        title: "Prédiction de Risque d'Accident (%)", 
-        paper_bgcolor: "#1e293b", 
-        plot_bgcolor: "#1e293b", 
-        font: {color: "white"},
+        title: "Risque d'Accident Prédictif (%)", 
+        paper_bgcolor: "#1e293b", plot_bgcolor: "#1e293b", font: {color: "white"},
         yaxis: { range: [0, 100] } 
     });
 </script>
