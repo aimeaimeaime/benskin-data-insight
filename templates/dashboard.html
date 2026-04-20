@@ -132,7 +132,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Analyse IA - Secteur Moto-Taxi (Benskin)</title>
-    <!-- LIEN TECHNIQUE OBLIGATOIRE POUR LES GRAPHES -->
+    <!-- On utilise un lien ultra-fiable pour Plotly -->
     <script src="https://plot.ly"></script>
     <link rel="stylesheet" href="/static/style.css">
 </head>
@@ -143,7 +143,7 @@
     
     <div class="card" style="margin-bottom: 30px; border-left: 5px solid #3b82f6; background: #1e293b; padding: 20px; border-radius: 12px;">
         <h3 style="color: #3b82f6; margin-top: 0;">🚀 Domaine d'application : Les Moto-Taxis (Benskin)</h3>
-        <p style="color: white;">Cette application utilise l'Intelligence Artificielle pour moderniser le secteur des conducteurs de moto-taxis.</p>
+        <p style="color: white;">Application d'Intelligence Artificielle pour la modernisation du secteur des moto-taxis.</p>
         <ul style="color: #cbd5e1;">
             <li><strong>Régression :</strong> Optimisation des revenus journaliers.</li>
             <li><strong>Classification :</strong> Prédiction des risques d'accidents.</li>
@@ -155,12 +155,15 @@
         <a href="/" style="color: #3b82f6; text-decoration: none; font-weight: bold;">+ Ajouter de nouvelles données</a>
     </div>
 
+    <!-- Les conteneurs avec une hauteur fixe pour être sûr qu'ils apparaissent -->
     <div class="grid">
-        <div class="card"><div id="graph1"></div></div>
-        <div class="card"><div id="graph2"></div></div>
+        <div class="card"><div id="graph1" style="height: 400px;"></div></div>
+        <div class="card"><div id="graph2" style="height: 400px;"></div></div>
     </div>
 
-    <div class="card" style="margin-top: 20px;"><div id="graph3"></div></div>
+    <div class="card" style="margin-top: 20px;">
+        <div id="graph3" style="height: 400px;"></div>
+    </div>
 
     <div class="card" style="margin-top: 20px; overflow-x: auto;">
         <h3 style="color: #3b82f6;">Données sources (Supabase Cloud)</h3>
@@ -188,31 +191,43 @@
 </div>
 
 <script>
-    // Chargement sécurisé des données
-    const data = JSON.parse('{{ graph_data | tojson | safe }}');
+    // On enveloppe tout dans un bloc try/catch pour voir les erreurs s'il y en a
+    try {
+        const data = JSON.parse('{{ graph_data | tojson | safe }}');
 
-    // GRAPH 1 : RÉGRESSION
-    Plotly.newPlot("graph1", [
-        { x: data.heures, y: data.revenu, mode: "markers", name: "Réel", marker: {color: "#3b82f6"} },
-        { x: data.heures, y: data.revenu_predit, mode: "lines", name: "IA", line: {color: "#ef4444"} }
-    ], { title: "Revenu vs Heures", paper_bgcolor: "#1e293b", plot_bgcolor: "#1e293b", font: {color: "white"} });
+        const layoutBase = {
+            paper_bgcolor: "#1e293b",
+            plot_bgcolor: "#1e293b",
+            font: {color: "white"},
+            margin: {t: 50, b: 50, l: 50, r: 50}
+        };
 
-    // GRAPH 2 : CLUSTERING
-    Plotly.newPlot("graph2", [{
-        x: data.revenu, y: data.fatigue, mode: "markers",
-        marker: { size: 12, color: data.clusters, colorscale: "Viridis", showscale: true }
-    }], { title: "Clusters de Conducteurs", paper_bgcolor: "#1e293b", plot_bgcolor: "#1e293b", font: {color: "white"} });
+        // GRAPH 1
+        Plotly.newPlot("graph1", [
+            { x: data.heures, y: data.revenu, mode: "markers", name: "Réel", marker: {color: "#3b82f6"} },
+            { x: data.heures, y: data.revenu_predit, mode: "lines", name: "IA", line: {color: "#ef4444"} }
+        ], { ...layoutBase, title: "Revenu vs Heures" });
 
-    // GRAPH 3 : CLASSIFICATION
-    Plotly.newPlot("graph3", [{
-        x: data.risque.map((_, i) => "Cond. " + (i + 1)),
-        y: data.risque, type: "bar",
-        marker: { color: data.risque.map(r => r > 50 ? '#ef4444' : '#3b82f6') }
-    }], { 
-        title: "Risque d'Accident Prédictif (%)", 
-        paper_bgcolor: "#1e293b", plot_bgcolor: "#1e293b", font: {color: "white"},
-        yaxis: { range: [0, 100] } 
-    });
+        // GRAPH 2
+        Plotly.newPlot("graph2", [{
+            x: data.revenu, y: data.fatigue, mode: "markers",
+            marker: { size: 12, color: data.clusters, colorscale: "Viridis", showscale: true }
+        }], { ...layoutBase, title: "Clusters de Fatigue" });
+
+        // GRAPH 3 : LA CORRECTION EST ICI [0, 100]
+        Plotly.newPlot("graph3", [{
+            x: data.risque.map((_, i) => "C" + (i + 1)),
+            y: data.risque, type: "bar",
+            marker: { color: data.risque.map(r => r > 50 ? '#ef4444' : '#3b82f6') }
+        }], { 
+            ...layoutBase, 
+            title: "Risque d'Accident (%)",
+            yaxis: { range: [0, 100] } 
+        });
+
+    } catch (e) {
+        console.error("Erreur de rendu Plotly :", e);
+    }
 </script>
 </body>
 </html>
