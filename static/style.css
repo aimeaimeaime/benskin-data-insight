@@ -1,54 +1,13 @@
 body {
     font-family: Arial;
-    margin: 0;
-    background: #0f172a;
-    color: white;
-}
-
-.container {
-    width: 90%;
-    margin: auto;
-    padding: 20px;
-}
-
-h1 {
     text-align: center;
-    color: #38bdf8;
 }
 
 form {
-    display: flex;
-    flex-direction: column;
-    max-width: 400px;
-    margin: auto;
-    gap: 10px;
+    margin: 20px;
 }
 
-input, select {
-    padding: 10px;
-    border-radius: 8px;
-    border: none;
-}
-
-button {
-    background: #38bdf8;
-    padding: 10px;
-    border: none;
-    color: white;
-    cursor: pointer;
-}
-
-.cards {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    justify-content: center;
-    margin-top: 30px;
-}
-
-.card {
-    background: #1e293b;
-    padding: 20px;
-    border-radius: 10px;
-    min-width: 200px;
+input, select, button {
+    margin: 5px;
+    padding: 8px;
 }

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+</head>
+<body>
+
+<h2>Données enregistrées</h2>
+
+<table border="1">
+    <tr>
+        <th>Age</th>
+        <th>Exp</th>
+        <th>Heures</th>
+        <th>Clients</th>
+        <th>Revenu</th>
+        <th>Fatigue</th>
+        <th>Accident</th>
+    </tr>
+
+    {% for row in data %}
+    <tr>
+        <td>{{ row.age }}</td>
+        <td>{{ row.experience }}</td>
+        <td>{{ row.heures_travail }}</td>
+        <td>{{ row.clients }}</td>
+        <td>{{ row.revenu }}</td>
+        <td>{{ row.fatigue }}</td>
+        <td>{{ row.accident }}</td>
+    </tr>
+    {% endfor %}
+
+</table>
+
+</body>
+</html>

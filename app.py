@@ -1,15 +1,19 @@
+from flask import Flask, render_template, request, redirect
+from supabase import create_client, Client
 import os
-from flask import Flask, render_template, request, redirect, jsonify
-from supabase import create_client
 
 app = Flask(__name__)
 
-# ENV VARIABLES (Render / local compatible)
+# ================= CONFIG =================
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
 
-supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+if not SUPABASE_URL or not SUPABASE_KEY:
+    raise Exception("Variables d'environnement Supabase manquantes")
 
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+# ================= ROUTES =================
 
 @app.route("/")
 def index():
@@ -18,43 +22,56 @@ def index():
 
 @app.route("/submit", methods=["POST"])
 def submit():
-    data = {
-        "age": int(request.form["age"]),
-        "experience": int(request.form["experience"]),
-        "heures_travail": float(request.form["heures_travail"]),
-        "clients": int(request.form["clients"]),
-        "revenu": float(request.form["revenu"]),
-        "fatigue": int(request.form["fatigue"]),
-        "accident": True if request.form["accident"] == "1" else False
-    }
+    try:
+        # récupération + validation
+        age = int(request.form.get("age", 0))
+        experience = int(request.form.get("experience", 0))
+        heures_travail = float(request.form.get("heures_travail", 0))
+        clients = int(request.form.get("clients", 0))
+        revenu = float(request.form.get("revenu", 0))
+        fatigue = int(request.form.get("fatigue", 0))
+        accident = True if request.form.get("accident") == "1" else False
 
-    supabase.table("conducteurs").insert(data).execute()
+        # vérification simple
+        if age <= 0 or experience < 0:
+            return "Données invalides"
 
-    return redirect("/dashboard")
+        data = {
+            "age": age,
+            "experience": experience,
+            "heures_travail": heures_travail,
+            "clients": clients,
+            "revenu": revenu,
+            "fatigue": fatigue,
+            "accident": accident
+        }
+
+        # insertion
+        response = supabase.table("conducteurs").insert(data).execute()
+
+        # debug utile
+        print("INSERT:", response)
+
+        return redirect("/dashboard")
+
+    except Exception as e:
+        print("ERREUR SUBMIT:", str(e))
+        return f"Erreur serveur: {str(e)}"
 
 
 @app.route("/dashboard")
 def dashboard():
-    response = supabase.table("conducteurs").select("*").execute()
-    data = response.data
+    try:
+        response = supabase.table("conducteurs").select("*").execute()
+        data = response.data
 
-    if not data:
-        return render_template("dashboard.html", stats={}, data=[])
+        return render_template("result.html", data=data)
 
-    import pandas as pd
-    df = pd.DataFrame(data)
-
-    stats = {
-        "total": len(df),
-        "revenu_moyen": round(df["revenu"].mean(), 2),
-        "fatigue_moyenne": round(df["fatigue"].mean(), 2),
-        "accident_rate": round(df["accident"].mean() * 100, 2)
-    }
-
-    return render_template("dashboard.html", stats=stats, data=data)
+    except Exception as e:
+        print("ERREUR DASHBOARD:", str(e))
+        return f"Erreur dashboard: {str(e)}"
 
 
-# REQUIRED FOR RENDER
+# ================= RUN =================
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(debug=True)
