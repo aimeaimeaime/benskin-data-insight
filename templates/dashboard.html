@@ -1,54 +1,93 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
-    <title>Dashboard Intelligent</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Intelligent - Analyse Benskin</title>
+    <!-- Chargement de Plotly.js -->
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
 
-<h1 style="text-align:center;">Dashboard Intelligent</h1>
+    <h1 style="text-align:center; margin-top: 20px;">Dashboard d'Analyse des Conducteurs</h1>
+    
+    <div style="text-align:center; margin-bottom: 20px;">
+        <a href="/" style="color: #3b82f6; text-decoration: none;">← Ajouter de nouvelles données</a>
+    </div>
 
-<div class="grid">
-    <div id="graph1"></div>
-    <div id="graph2"></div>
-</div>
+    <div class="grid">
+        <!-- Graphique 1 : Régression Linéaire -->
+        <div id="graph1" class="chart-container"></div>
+        
+        <!-- Graphique 2 : Clustering K-Means -->
+        <div id="graph2" class="chart-container"></div>
+    </div>
 
-<script>
-    // ✅ Injection propre et sécurisée JSON
-    const data = JSON.parse('{{ graph_data | tojson | safe }}');
+    <script>
+        // Récupération sécurisée des données envoyées par Flask
+        // Note : On n'utilise pas JSON.parse() car | tojson | safe génère déjà un objet JS valide
+// Remplace la ligne 30 par celle-ci
+const data = JSON.parse('{{ graph_data | tojson | safe }}');
 
-    // ===== Graph 1 : Revenu vs Heures =====
-    Plotly.newPlot("graph1", [{
-        x: data.heures,
-        y: data.revenu,
-        mode: "markers",
-        type: "scatter"
-    }], {
-        title: "Revenu vs Heures",
-        paper_bgcolor: "#0f172a",
-        plot_bgcolor: "#0f172a",
-        font: { color: "white" }
-    });
+        // ===== GRAPH 1 : RÉGRESSION LINÉAIRE (Analyse Prédictive) =====
+        const traceReel = {
+            x: data.heures,
+            y: data.revenu,
+            name: "Données Réelles",
+            mode: "markers",
+            type: "scatter",
+            marker: { color: '#3b82f6', size: 10 }
+        };
 
-    // ===== Graph 2 : Clustering =====
-    Plotly.newPlot("graph2", [{
-        x: data.revenu,
-        y: data.fatigue,
-        mode: "markers",
-        type: "scatter",
-        marker: {
-            size: 10,
-            color: data.clusters,
-            colorscale: "Viridis"
-        }
-    }], {
-        title: "Clusters Conducteurs",
-        paper_bgcolor: "#0f172a",
-        plot_bgcolor: "#0f172a",
-        font: { color: "white" }
-    });
-</script>
+        const tracePrediction = {
+            x: data.heures,
+            y: data.revenu_predit,
+            name: "Modèle de Régression",
+            mode: "lines",
+            line: { color: '#ef4444', width: 3 }
+        };
+
+        const layout1 = {
+            title: "Revenu vs Heures de Travail",
+            xaxis: { title: "Heures de Travail" },
+            yaxis: { title: "Revenu (CFA)" },
+            paper_bgcolor: "#1e293b",
+            plot_bgcolor: "#1e293b",
+            font: { color: "white" },
+            legend: { orientation: 'h', y: -0.2 }
+        };
+
+        Plotly.newPlot("graph1", [traceReel, tracePrediction], layout1);
+
+
+        // ===== GRAPH 2 : CLUSTERING K-MEANS (Analyse Non-Supervisée) =====
+        const traceClusters = {
+            x: data.revenu,
+            y: data.fatigue,
+            mode: "markers",
+            type: "scatter",
+            marker: {
+                size: 14,
+                color: data.clusters, // Les IDs des clusters (0, 1, 2)
+                colorscale: "Viridis",
+                showscale: true,
+                colorbar: { title: "Cluster ID", tickcolor: "white" }
+            },
+            text: data.clusters.map(c => "Groupe " + c)
+        };
+
+        const layout2 = {
+            title: "Segmentation des Conducteurs (Fatigue vs Revenu)",
+            xaxis: { title: "Revenu" },
+            yaxis: { title: "Niveau de Fatigue (1-10)" },
+            paper_bgcolor: "#1e293b",
+            plot_bgcolor: "#1e293b",
+            font: { color: "white" }
+        };
+
+        Plotly.newPlot("graph2", [traceClusters], layout2);
+    </script>
 
 </body>
 </html>
