@@ -81,6 +81,7 @@
 
 
 
+
 from flask import Flask, render_template, request, redirect
 from supabase import create_client
 import os
@@ -146,7 +147,6 @@ def dashboard():
         X_clf = df[["fatigue", "experience", "age"]]
         y_clf = df["accident"].astype(int)
         clf_model = RandomForestClassifier(n_estimators=10).fit(X_clf, y_clf)
-        # Probabilité de risque d'accident
         df["risque_score"] = clf_model.predict_proba(X_clf)[:, 1] * 100
 
         # Tri pour un graphique de régression propre
@@ -165,7 +165,8 @@ def dashboard():
         # Conversion des données pour le tableau HTML
         table_data = df.to_dict(orient="records")
 
-        return render_template("dashboard.html", graph_data=graph_data, table_data=table_data)
+        # ✅ FIX : json.dumps() convertit le dict Python en JSON valide pour le JS
+        return render_template("dashboard.html", graph_data=json.dumps(graph_data), table_data=table_data)
 
     except Exception as e:
         return f"Erreur Dashboard: {str(e)}"
