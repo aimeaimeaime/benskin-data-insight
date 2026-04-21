@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -111,7 +111,7 @@
 </div>
 
 <script>
-    // Animation d'entrée des champs
+    
     const fields = document.querySelectorAll('.field');
     fields.forEach((f, i) => {
         f.style.opacity = '0';
@@ -122,6 +122,441 @@
             f.style.transform = 'translateY(0)';
         }, 80 + i * 40);
     });
+</script>
+</body>
+</html> -->
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Benskin Analytics — Collecte</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        /* ── Styles validation inline ── */
+        .field-error {
+            display: none;
+            font-size: 0.72rem;
+            color: #ef4444;
+            margin-top: 4px;
+            padding: 4px 10px;
+            background: rgba(239,68,68,0.08);
+            border-left: 2px solid #ef4444;
+            border-radius: 4px;
+            font-family: 'Space Mono', monospace;
+            animation: fadeIn 0.2s ease;
+        }
+        .field-error.visible { display: block; }
+
+        input.invalid {
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 0 3px rgba(239,68,68,0.15) !important;
+        }
+        input.valid {
+            border-color: #22c55e !important;
+            box-shadow: 0 0 0 3px rgba(34,197,94,0.1) !important;
+        }
+
+        .form-toast {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            background: #ef4444; color: white;
+            padding: 14px 28px; border-radius: 10px;
+            font-size: 0.88rem; font-weight: 700;
+            font-family: 'Space Mono', monospace;
+            z-index: 999; box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+            display: none; white-space: nowrap;
+            animation: slideDown 0.3s ease;
+        }
+        .form-toast.show { display: block; }
+
+        @keyframes fadeIn  { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:none; } }
+        @keyframes slideDown { from { opacity:0; transform:translateX(-50%) translateY(-16px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
+
+        .converted-hint {
+            font-size: 0.7rem; color: #22c55e;
+            font-family: 'Space Mono', monospace;
+            margin-top: 3px; display: none;
+        }
+        .converted-hint.show { display: block; }
+    </style>
+</head>
+<body class="form-page">
+
+<div class="form-toast" id="toast">⚠️ Veuillez corriger les erreurs avant de soumettre.</div>
+
+<div class="form-wrapper">
+    <div class="form-header">
+        <div class="logo-badge">🏍️</div>
+        <h1>Benskin <span class="accent">Analytics</span></h1>
+        <p class="subtitle">Observatoire Intelligent du Transport Urbain · Yaoundé</p>
+    </div>
+
+    <form action="/submit" method="POST" class="data-form" id="mainForm" novalidate>
+
+        <!-- ══ SECTION 01 : PROFIL ══ -->
+        <div class="form-section">
+            <h2 class="section-title"><span class="step">01</span> Profil du Conducteur</h2>
+            <div class="field-grid">
+
+                <div class="field">
+                    <label for="age">Âge <span class="hint-range">(18 – 70 ans)</span></label>
+                    <input type="number" id="age" name="age"
+                           min="18" max="70" step="1"
+                           placeholder="Ex: 28" required>
+                    <span class="field-error" id="err_age"></span>
+                </div>
+
+                <div class="field">
+                    <label for="experience">Années d'expérience <span class="hint-range">(0 – 40)</span></label>
+                    <input type="number" id="experience" name="experience"
+                           min="0" max="40" step="1"
+                           placeholder="Ex: 5" required>
+                    <span class="field-error" id="err_experience"></span>
+                </div>
+
+                <div class="field full">
+                    <label for="zone">Zone de travail</label>
+                    <select id="zone" name="zone" required>
+                        <option value="" disabled selected>Sélectionner une zone</option>
+                        <option value="Centre-ville">Centre-ville</option>
+                        <option value="Bastos">Bastos</option>
+                        <option value="Biyem-Assi">Biyem-Assi</option>
+                        <option value="Melen">Melen</option>
+                        <option value="Ngousso">Ngousso</option>
+                        <option value="Essos">Essos</option>
+                        <option value="Autre">Autre</option>
+                    </select>
+                    <span class="field-error" id="err_zone"></span>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ══ SECTION 02 : ACTIVITÉ ══ -->
+        <div class="form-section">
+            <h2 class="section-title"><span class="step">02</span> Activité Journalière</h2>
+            <div class="field-grid">
+
+                <div class="field">
+                    <label for="heures_travail">Heures de travail / jour <span class="hint-range">(1 – 24 h)</span></label>
+                    <input type="number" id="heures_travail" name="heures_travail"
+                           min="1" max="24" step="0.5"
+                           placeholder="Ex: 8.5" required>
+                    <span class="converted-hint" id="conv_heures_travail"></span>
+                    <span class="field-error" id="err_heures_travail"></span>
+                </div>
+
+                <div class="field">
+                    <label for="clients">Nombre de clients / jour <span class="hint-range">(1 – 100)</span></label>
+                    <input type="number" id="clients" name="clients"
+                           min="1" max="100" step="1"
+                           placeholder="Ex: 20" required>
+                    <span class="field-error" id="err_clients"></span>
+                </div>
+
+                <div class="field">
+                    <label for="distance_km">Distance parcourue (km) <span class="hint-range">(1 – 500 km)</span></label>
+                    <input type="number" id="distance_km" name="distance_km"
+                           min="1" max="500" step="0.1"
+                           placeholder="Ex: 85.5" required>
+                    <span class="converted-hint" id="conv_distance_km"></span>
+                    <span class="field-error" id="err_distance_km"></span>
+                </div>
+
+                <div class="field">
+                    <label for="carburant_litre">Carburant consommé (L) <span class="hint-range">(0.5 – 50 L)</span></label>
+                    <input type="number" id="carburant_litre" name="carburant_litre"
+                           min="0.5" max="50" step="0.1"
+                           placeholder="Ex: 4.2" required>
+                    <span class="converted-hint" id="conv_carburant_litre"></span>
+                    <span class="field-error" id="err_carburant_litre"></span>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ══ SECTION 03 : PERFORMANCE ══ -->
+        <div class="form-section">
+            <h2 class="section-title"><span class="step">03</span> Performance &amp; Sécurité</h2>
+            <div class="field-grid">
+
+                <div class="field">
+                    <label for="revenu">Revenu journalier (FCFA) <span class="hint-range">(500 – 100 000)</span></label>
+                    <input type="number" id="revenu" name="revenu"
+                           min="500" max="100000" step="1"
+                           placeholder="Ex: 8500" required>
+                    <span class="converted-hint" id="conv_revenu"></span>
+                    <span class="field-error" id="err_revenu"></span>
+                </div>
+
+                <div class="field">
+                    <label for="note_client">Note moyenne clients <span class="hint-range">(0.0 – 5.0)</span></label>
+                    <input type="number" id="note_client" name="note_client"
+                           min="0" max="5" step="0.1"
+                           placeholder="Ex: 4.2" required>
+                    <span class="converted-hint" id="conv_note_client"></span>
+                    <span class="field-error" id="err_note_client"></span>
+                </div>
+
+                <div class="field">
+                    <label for="fatigue">Niveau de fatigue <span class="hint-range">(1 – 10)</span></label>
+                    <input type="number" id="fatigue" name="fatigue"
+                           min="1" max="10" step="1"
+                           placeholder="Ex: 6" required>
+                    <span class="hint">1 = Frais · 10 = Épuisé</span>
+                    <span class="field-error" id="err_fatigue"></span>
+                </div>
+
+                <div class="field">
+                    <label>Accident ce jour ?</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="accident" value="0" checked>
+                            <span>Non</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="accident" value="1">
+                            <span>Oui</span>
+                        </label>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <button type="submit" class="submit-btn" id="submitBtn">
+            <span>Soumettre &amp; Analyser</span>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+    </form>
+
+    <div class="form-footer">
+        <a href="/dashboard" class="dash-link">→ Voir le tableau de bord IA</a>
+    </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+//  CONFIGURATION DES CHAMPS : règles de validation + messages
+// ══════════════════════════════════════════════════════════════
+const FIELDS_CONFIG = {
+    age:             { min: 18,  max: 70,     isFloat: false, label: "Âge",                    unit: "ans" },
+    experience:      { min: 0,   max: 40,     isFloat: false, label: "Expérience",              unit: "ans" },
+    heures_travail:  { min: 1,   max: 24,     isFloat: true,  label: "Heures de travail",       unit: "h"   },
+    clients:         { min: 1,   max: 100,    isFloat: false, label: "Nombre de clients",       unit: ""    },
+    distance_km:     { min: 1,   max: 500,    isFloat: true,  label: "Distance",                unit: "km"  },
+    carburant_litre: { min: 0.5, max: 50,     isFloat: true,  label: "Carburant",               unit: "L"   },
+    revenu:          { min: 500, max: 100000, isFloat: true,  label: "Revenu",                  unit: "FCFA"},
+    note_client:     { min: 0,   max: 5,      isFloat: true,  label: "Note client",             unit: "/5"  },
+    fatigue:         { min: 1,   max: 10,     isFloat: false, label: "Fatigue",                 unit: "/10" },
+};
+
+// ══════════════════════════════════════════════════════════════
+//  UTILITAIRES
+// ══════════════════════════════════════════════════════════════
+function showError(fieldId, msg) {
+    var input = document.getElementById(fieldId);
+    var errEl = document.getElementById('err_' + fieldId);
+    if (!input || !errEl) return;
+    input.classList.add('invalid');
+    input.classList.remove('valid');
+    errEl.textContent = '⚠ ' + msg;
+    errEl.classList.add('visible');
+}
+
+function clearError(fieldId) {
+    var input = document.getElementById(fieldId);
+    var errEl = document.getElementById('err_' + fieldId);
+    if (!input || !errEl) return;
+    input.classList.remove('invalid');
+    errEl.textContent = '';
+    errEl.classList.remove('visible');
+}
+
+function markValid(fieldId) {
+    var input = document.getElementById(fieldId);
+    if (!input) return;
+    input.classList.remove('invalid');
+    input.classList.add('valid');
+}
+
+function showConvertedHint(fieldId, originalVal, convertedVal) {
+    var hintEl = document.getElementById('conv_' + fieldId);
+    if (!hintEl) return;
+    hintEl.textContent = '✓ Converti : ' + originalVal + ' → ' + convertedVal.toFixed(2);
+    hintEl.classList.add('show');
+}
+
+function hideConvertedHint(fieldId) {
+    var hintEl = document.getElementById('conv_' + fieldId);
+    if (!hintEl) return;
+    hintEl.classList.remove('show');
+}
+
+function showToast(msg) {
+    var toast = document.getElementById('toast');
+    toast.textContent = '⚠️ ' + msg;
+    toast.classList.add('show');
+    setTimeout(function() { toast.classList.remove('show'); }, 3500);
+}
+
+// ══════════════════════════════════════════════════════════════
+//  VALIDATION + CONVERSION D'UN CHAMP
+// ══════════════════════════════════════════════════════════════
+function validateField(fieldId) {
+    var cfg   = FIELDS_CONFIG[fieldId];
+    var input = document.getElementById(fieldId);
+    if (!cfg || !input) return true;
+
+    var raw = input.value.trim();
+
+    // Champ vide
+    if (raw === '') {
+        showError(fieldId, cfg.label + ' est obligatoire.');
+        return false;
+    }
+
+    var val = parseFloat(raw);
+
+    // Non numérique
+    if (isNaN(val)) {
+        showError(fieldId, cfg.label + ' doit être un nombre valide.');
+        return false;
+    }
+
+    // Conversion entier → float pour les champs float
+    if (cfg.isFloat && Number.isInteger(val)) {
+        showConvertedHint(fieldId, val, val);   // affiche la note de conversion
+        // On met à jour la valeur dans le champ avec 1 décimale
+        input.value = val.toFixed(1);
+    } else {
+        hideConvertedHint(fieldId);
+    }
+
+    // Bornes
+    if (val < cfg.min || val > cfg.max) {
+        showError(fieldId,
+            cfg.label + ' doit être compris entre ' +
+            cfg.min + ' et ' + cfg.max + ' ' + cfg.unit + '.'
+        );
+        return false;
+    }
+
+    // Entiers stricts : refuser les décimales saisies à la main
+    if (!cfg.isFloat && !Number.isInteger(val)) {
+        showError(fieldId, cfg.label + ' doit être un nombre entier (sans virgule).');
+        return false;
+    }
+
+    clearError(fieldId);
+    markValid(fieldId);
+    return true;
+}
+
+// ══════════════════════════════════════════════════════════════
+//  VALIDATION SELECT
+// ══════════════════════════════════════════════════════════════
+function validateSelect(fieldId) {
+    var sel   = document.getElementById(fieldId);
+    var errEl = document.getElementById('err_' + fieldId);
+    if (!sel || !errEl) return true;
+    if (!sel.value) {
+        sel.classList.add('invalid');
+        errEl.textContent = '⚠ Veuillez sélectionner une zone de travail.';
+        errEl.classList.add('visible');
+        return false;
+    }
+    sel.classList.remove('invalid');
+    sel.classList.add('valid');
+    errEl.textContent = '';
+    errEl.classList.remove('visible');
+    return true;
+}
+
+// ══════════════════════════════════════════════════════════════
+//  VALIDATION EN TEMPS RÉEL (blur sur chaque champ)
+// ══════════════════════════════════════════════════════════════
+Object.keys(FIELDS_CONFIG).forEach(function(fieldId) {
+    var input = document.getElementById(fieldId);
+    if (!input) return;
+
+    // Validation au moment où l'utilisateur quitte le champ
+    input.addEventListener('blur', function() {
+        validateField(fieldId);
+    });
+
+    // Effacer l'erreur dès que l'utilisateur retape
+    input.addEventListener('input', function() {
+        if (input.classList.contains('invalid')) {
+            clearError(fieldId);
+            hideConvertedHint(fieldId);
+        }
+    });
+});
+
+// Validation sélect en temps réel
+var zoneSelect = document.getElementById('zone');
+if (zoneSelect) {
+    zoneSelect.addEventListener('change', function() { validateSelect('zone'); });
+}
+
+// ══════════════════════════════════════════════════════════════
+//  VALIDATION GLOBALE À LA SOUMISSION
+// ══════════════════════════════════════════════════════════════
+document.getElementById('mainForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    var allValid = true;
+
+    // Valider tous les champs numériques
+    Object.keys(FIELDS_CONFIG).forEach(function(fieldId) {
+        if (!validateField(fieldId)) allValid = false;
+    });
+
+    // Valider le select
+    if (!validateSelect('zone')) allValid = false;
+
+    if (!allValid) {
+        showToast('Veuillez corriger les erreurs avant de soumettre.');
+        // Scroll vers la première erreur
+        var firstInvalid = document.querySelector('.invalid');
+        if (firstInvalid) {
+            firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            firstInvalid.focus();
+        }
+        return;
+    }
+
+    // Tout est valide → soumettre
+    var btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span>Envoi en cours...</span>';
+    this.submit();
+});
+
+// ══════════════════════════════════════════════════════════════
+//  ANIMATION D'ENTRÉE DES CHAMPS
+// ══════════════════════════════════════════════════════════════
+var fields = document.querySelectorAll('.field');
+fields.forEach(function(f, i) {
+    f.style.opacity = '0';
+    f.style.transform = 'translateY(16px)';
+    setTimeout(function() {
+        f.style.transition = 'all 0.4s ease';
+        f.style.opacity = '1';
+        f.style.transform = 'translateY(0)';
+    }, 80 + i * 40);
+});
 </script>
 </body>
 </html>
