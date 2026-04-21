@@ -76,6 +76,12 @@ def dashboard():
         if len(df) < 5:
             return render_template("insufficient.html", count=len(df))
 
+        # ── Sécurisation : colonnes ajoutées récemment peuvent être NULL ─────
+        df["distance_km"]     = pd.to_numeric(df.get("distance_km"),     errors="coerce").fillna(0.0)
+        df["carburant_litre"] = pd.to_numeric(df.get("carburant_litre"), errors="coerce").fillna(0.0)
+        df["note_client"]     = pd.to_numeric(df.get("note_client"),     errors="coerce").fillna(3.0)
+        df["zone"]            = df.get("zone", pd.Series(["Inconnue"] * len(df))).fillna("Inconnue")
+
         # ── 1. RÉGRESSION LINÉAIRE SIMPLE (Revenu ~ Heures) ──────────────────
         X_simple = df[["heures_travail"]]
         y_rev = df["revenu"]
