@@ -124,14 +124,12 @@
 
 
 
-
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <title>Analyse IA - Moto-Taxi</title>
-    <script src="https://plot.ly"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.27.0/plotly.min.js"></script>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
@@ -171,29 +169,64 @@
 </div>
 
 <script>
-    // Méthode de récupération ultra-robuste
-    const jsonContainer = document.getElementById('data-storage');
-    const dataIA = JSON.parse(jsonContainer.textContent);
-    
-    const layout = { paper_bgcolor: "#1e293b", plot_bgcolor: "#1e293b", font: {color: "white"} };
+    const layout = {
+        paper_bgcolor: "#1e293b",
+        plot_bgcolor: "#1e293b",
+        font: { color: "white" }
+    };
 
-    // Graph 1
-    Plotly.newPlot("g1", [
-        { x: dataIA.heures, y: dataIA.revenu, mode: "markers", name: "Réel" },
-        { x: dataIA.heures, y: dataIA.revenu_predit, mode: "lines", name: "IA", line: {color: "red"} }
-    ], { ...layout, title: "Revenu vs Heures" });
+    // Récupération et parsing sécurisé des données JSON
+    let dataIA;
+    try {
+        const jsonContainer = document.getElementById('data-storage');
+        dataIA = JSON.parse(jsonContainer.textContent);
+    } catch (e) {
+        console.error("Erreur lors du parsing de graph_data :", e);
+    }
 
-    // Graph 2
-    Plotly.newPlot("g2", [{
-        x: dataIA.revenu, y: dataIA.fatigue, mode: "markers",
-        marker: { size: 12, color: dataIA.clusters, colorscale: "Viridis" }
-    }], { ...layout, title: "Segments Fatigue" });
+    if (dataIA) {
+        // Graph 1 : Revenu vs Heures
+        Plotly.newPlot("g1", [
+            {
+                x: dataIA.heures,
+                y: dataIA.revenu,
+                mode: "markers",
+                name: "Réel",
+                marker: { color: "#3b82f6" }
+            },
+            {
+                x: dataIA.heures,
+                y: dataIA.revenu_predit,
+                mode: "lines",
+                name: "IA",
+                line: { color: "red" }
+            }
+        ], { ...layout, title: "Revenu vs Heures" });
 
-    // Graph 3
-    Plotly.newPlot("g3", [{
-        x: dataIA.risque.map((_, i) => "C" + (i + 1)),
-        y: dataIA.risque, type: "bar", marker: {color: "#3b82f6"}
-    }], { ...layout, title: "Risque Accident (%)" });
+        // Graph 2 : Segments Fatigue
+        Plotly.newPlot("g2", [{
+            x: dataIA.revenu,
+            y: dataIA.fatigue,
+            mode: "markers",
+            marker: {
+                size: 12,
+                color: dataIA.clusters,
+                colorscale: "Viridis",
+                showscale: true
+            }
+        }], { ...layout, title: "Segments Fatigue" });
+
+        // Graph 3 : Risque Accident
+        Plotly.newPlot("g3", [{
+            x: dataIA.risque.map((_, i) => "C" + (i + 1)),
+            y: dataIA.risque,
+            type: "bar",
+            marker: { color: "#3b82f6" }
+        }], { ...layout, title: "Risque Accident (%)" });
+
+    } else {
+        console.warn("Aucune donnée disponible pour afficher les graphiques.");
+    }
 </script>
 </body>
 </html>
