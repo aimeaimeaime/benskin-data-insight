@@ -1,232 +1,374 @@
-<!-- <!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <title>Analyse Décisionnelle - IA Transport</title>
-    <script src="https://plot.ly"></script>
-    <link rel="stylesheet" href="/static/style.css">
-</head>
-<body>
-
-<h1 style="text-align:center; margin-top: 20px;">Système Intelligent d'Analyse des Conducteurs</h1>
-
-<div style="text-align:center; margin-bottom: 20px;">
-    <a href="/" style="color: #3b82f6; text-decoration: none;">← Ajouter de nouvelles données</a>
-</div>
-
-<div class="grid">
-    <div class="card">
-        <div id="graph1"></div>
-        <div class="analysis">
-            <h3>1. Régression Linéaire Multiple</h3>
-            <p><strong>Méthode :</strong> Modélisation du revenu basée sur les heures et le flux de clients.</p>
-            <p><strong>Validation :</strong> Score R² (Précision) : <span id="r2-score" style="font-weight: bold; color: #10b981;"></span></p>
-        </div>
-    </div>
-
-    <div class="card">
-        <div id="graph2"></div>
-        <div class="analysis">
-            <h3>2. Classification Non-Supervisée (K-Means)</h3>
-            <p><strong>Méthode :</strong> Segmentation automatique en 3 clusters (Ratio Revenu/Fatigue).</p>
-            <p><strong>Analyse :</strong> Identification des profils de conducteurs par comportement.</p>
-        </div>
-    </div>
-</div>
-
-<div class="card" style="margin: 20px;">
-    <div id="graph3"></div>
-    <div class="analysis">
-        <h3>3. Classification Supervisée (Random Forest)</h3>
-        <p><strong>Méthode :</strong> Prédiction de probabilité d'accident selon l'expérience et l'âge.</p>
-        <p><strong>Robustesse :</strong> Optimisation par sélection de variables (Point 3 & 4 du programme).</p>
-    </div>
-</div>
-
-<div class="card" style="margin: 20px; overflow-x: auto;">
-    <h3 style="margin-bottom: 15px;">Base de Données en Temps Réel (Source : Supabase Cloud)</h3>
-    <table border="1" style="width:100%; border-collapse: collapse; text-align: left;">
-        <thead>
-            <tr style="background: #3b82f6; color: white;">
-                <th>Âge</th>
-                <th>Expérience</th>
-                <th>Heures</th>
-                <th>Revenu (CFA)</th>
-                <th>Fatigue /10</th>
-                <th>Accident</th>
-                <th>Risque IA (%)</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for row in table_data %}
-            <tr style="border-bottom: 1px solid #334155;">
-                <td>{{ row.age }}</td>
-                <td>{{ row.experience }} ans</td>
-                <td>{{ row.heures_travail }}h</td>
-                <td>{{ row.revenu }}</td>
-                <td>{{ row.fatigue }}</td>
-                <td>{{ 'OUI' if row.accident else 'NON' }}</td>
-                <td><strong>{{ row.risque_score | round(1) }}%</strong></td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-
-<script>
-    // ✅ Injection sécurisée pour éviter les erreurs d'éditeur
-    const dataString = '{{ graph_data | tojson | safe }}';
-    const data = JSON.parse(dataString);
-    
-    document.getElementById('r2-score').innerText = data.r2;
-
-    // --- GRAPH 1 : RÉGRESSION ---
-    Plotly.newPlot("graph1", [
-        { x: data.heures, y: data.revenu, mode: "markers", name: "Réel", marker: {color: "#3b82f6"} },
-        { x: data.heures, y: data.revenu_predit, mode: "lines", name: "Modèle", line: {color: "#ef4444", width: 3} }
-    ], {
-        title: "Modélisation du Revenu",
-        paper_bgcolor: "#1e293b", plot_bgcolor: "#1e293b", font: {color: "white"}
-    });
-
-    // --- GRAPH 2 : CLUSTERING ---
-    Plotly.newPlot("graph2", [{
-        x: data.revenu, y: data.fatigue, mode: "markers",
-        marker: { size: 14, color: data.clusters, colorscale: "Viridis", showscale: true }
-    }], {
-        title: "Segmentation des Conducteurs",
-        paper_bgcolor: "#1e293b", plot_bgcolor: "#1e293b", font: {color: "white"}
-    });
-
-    // --- GRAPH 3 : CLASSIFICATION ---
-    Plotly.newPlot("graph3", [{
-        x: data.risque.map((_, i) => "Cond. " + (i + 1)),
-        y: data.risque, type: "bar",
-        marker: { color: data.risque.map(r => r > 50 ? '#ef4444' : '#10b981') }
-    }], {
-        title: "Prédiction de Risque d'Accident (%)",
-        paper_bgcolor: "#1e293b", plot_bgcolor: "#1e293b", font: {color: "white"},
-        yaxis: { range: [0, 100] }
-    });
-</script>
-
-</body>
-</html> -->
-
-
-
-
-
-
-
-
-
-
-
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Analyse IA - Moto-Taxi</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Benskin Analytics — Dashboard IA</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.27.0/plotly.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/style.css">
 </head>
-<body>
+<body class="dash-page">
 
-<div style="max-width: 1200px; margin: auto; padding: 20px;">
-    <h1 style="text-align:center; color: #3b82f6;">Observatoire Intelligent du Transport Urbain</h1>
-    
-    <div class="card" style="margin-bottom: 20px; background: #1e293b; padding: 20px; border-radius: 12px; color: white; border-left: 5px solid #3b82f6;">
-        <h3 style="color: #3b82f6;">🚀 Domaine : Moto-Taxis (Benskin)</h3>
-        <p>Analyse IA pour l'optimisation des revenus et la sécurité routière.</p>
+<nav class="topnav">
+    <div class="nav-brand">🏍️ <strong>Benskin</strong> Analytics</div>
+    <div class="nav-links">
+        <a href="/" class="nav-btn">+ Nouvelle entrée</a>
+    </div>
+</nav>
+
+<div class="dash-container">
+
+    <!-- Hero Banner -->
+    <div class="hero-banner">
+        <div>
+            <h1>Observatoire Intelligent <span class="accent">Moto-Taxi</span></h1>
+            <p>Analyse IA en temps réel · Yaoundé, Cameroun</p>
+        </div>
+        <div class="hero-badge">IA Active</div>
     </div>
 
-    <!-- Divs pour les graphiques avec hauteurs fixes -->
-    <div class="grid">
-        <div class="card"><div id="g1" style="height:400px;"></div></div>
-        <div class="card"><div id="g2" style="height:400px;"></div></div>
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-icon">👥</div>
+            <div class="kpi-value">{{ stats.total }}</div>
+            <div class="kpi-label">Conducteurs analysés</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-icon">💰</div>
+            <div class="kpi-value">{{ stats.revenu_moy | int }} <small>FCFA</small></div>
+            <div class="kpi-label">Revenu moyen/jour</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-icon">⏱️</div>
+            <div class="kpi-value">{{ stats.heures_moy }}h</div>
+            <div class="kpi-label">Heures moyennes/jour</div>
+        </div>
+        <div class="kpi-card kpi-danger">
+            <div class="kpi-icon">⚠️</div>
+            <div class="kpi-value">{{ stats.risque_moy }}%</div>
+            <div class="kpi-label">Risque accident moyen</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-icon">⭐</div>
+            <div class="kpi-value">{{ stats.note_moy }}</div>
+            <div class="kpi-label">Note client moyenne</div>
+        </div>
+        <div class="kpi-card kpi-warn">
+            <div class="kpi-icon">🚨</div>
+            <div class="kpi-value">{{ stats.accidents }}</div>
+            <div class="kpi-label">Accidents déclarés</div>
+        </div>
     </div>
-    <div class="card" style="margin-top:20px;"><div id="g3" style="height:400px;"></div></div>
 
-    <!-- Stockage des données invisible pour éviter le bug de mon interface -->
-    <div id="data-storage" style="display:none;">{{ graph_data | safe }}</div>
+    <!-- Section 1 : Régression simple -->
+    <div class="section-header">
+        <div class="section-tag">01</div>
+        <div>
+            <h2>Régression Linéaire Simple</h2>
+            <p>Revenu prédit en fonction des heures de travail</p>
+        </div>
+    </div>
+    <div class="card graph-card">
+        <div id="g_reg_simple" style="height:380px;"></div>
+        <div class="model-info" id="info_reg_simple"></div>
+    </div>
 
-    <div class="card" style="margin-top: 20px; background: #1e293b; padding: 15px; color: white;">
-        <h3>Données sources (Supabase)</h3>
-        <table style="width:100%; border-collapse: collapse; text-align: left;">
-            <thead><tr style="background: #3b82f6;"><th>Âge</th><th>Exp.</th><th>Heures</th><th>Revenu</th><th>Fatigue</th><th>Risque IA</th></tr></thead>
+    <!-- Section 2 : Régression multiple -->
+    <div class="section-header">
+        <div class="section-tag">02</div>
+        <div>
+            <h2>Régression Linéaire Multiple</h2>
+            <p>Revenu prédit : Heures + Clients + Distance</p>
+        </div>
+    </div>
+    <div class="card graph-card">
+        <div id="g_reg_multi" style="height:380px;"></div>
+        <div class="model-info" id="info_reg_multi"></div>
+    </div>
+
+    <!-- Section 3 : PCA -->
+    <div class="section-header">
+        <div class="section-tag">03</div>
+        <div>
+            <h2>Réduction de Dimensionnalité (PCA)</h2>
+            <p>Projection 2D de 9 variables — visualisation des profils conducteurs</p>
+        </div>
+    </div>
+    <div class="card graph-card">
+        <div id="g_pca" style="height:420px;"></div>
+        <div class="model-info" id="info_pca"></div>
+    </div>
+
+    <!-- Section 4 & 5 : Classification -->
+    <div class="graph-row">
+        <div>
+            <div class="section-header">
+                <div class="section-tag">04</div>
+                <div>
+                    <h2>Classification Supervisée</h2>
+                    <p>Random Forest — Risque d'accident</p>
+                </div>
+            </div>
+            <div class="card graph-card">
+                <div id="g_rf_risk" style="height:360px;"></div>
+                <div id="g_rf_importance" style="height:300px;"></div>
+            </div>
+        </div>
+        <div>
+            <div class="section-header">
+                <div class="section-tag">05</div>
+                <div>
+                    <h2>Classification Non-Supervisée</h2>
+                    <p>K-Means — Segmentation conducteurs</p>
+                </div>
+            </div>
+            <div class="card graph-card">
+                <div id="g_kmeans" style="height:420px;"></div>
+                <div class="model-info" id="info_kmeans"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tableau de données -->
+    <div class="section-header">
+        <div class="section-tag">📋</div>
+        <div><h2>Données sources</h2><p>Toutes les entrées Supabase</p></div>
+    </div>
+    <div class="card table-card">
+        <div class="table-scroll">
+        <table>
+            <thead>
+                <tr>
+                    <th>Âge</th><th>Exp.</th><th>Heures</th><th>Clients</th>
+                    <th>Distance</th><th>Revenu</th><th>Fatigue</th>
+                    <th>Note ★</th><th>Zone</th><th>Risque IA</th><th>Segment</th>
+                </tr>
+            </thead>
             <tbody>
                 {% for row in table_data %}
-                <tr style="border-bottom: 1px solid #334155;">
-                    <td>{{ row.age }}</td><td>{{ row.experience }}</td><td>{{ row.heures_travail }}</td>
-                    <td>{{ row.revenu }}</td><td>{{ row.fatigue }}</td><td><strong>{{ row.risque_score | round(1) }}%</strong></td>
+                <tr>
+                    <td>{{ row.age }}</td>
+                    <td>{{ row.experience }} ans</td>
+                    <td>{{ row.heures_travail }}h</td>
+                    <td>{{ row.clients }}</td>
+                    <td>{{ row.distance_km | round(1) }} km</td>
+                    <td><strong>{{ row.revenu | int }} FCFA</strong></td>
+                    <td>
+                        <span class="fatigue-bar">
+                            <span class="fatigue-fill" data-w="{{ row.fatigue_width }}" data-c="{{ row.fatigue_color }}"></span>
+                        </span>
+                        {{ row.fatigue }}/10
+                    </td>
+                    <td>{{ row.note_client }}</td>
+                    <td><span class="zone-badge">{{ row.zone }}</span></td>
+                    <td>
+                        <span class="risk-badge {{ row.risk_class }}">
+                            {{ row.risque_score | round(1) }}%
+                        </span>
+                    </td>
+                    <td><span class="cluster-badge">{{ row.cluster_label }}</span></td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+        </div>
     </div>
+
 </div>
 
+<!-- Données JSON injectées par Flask/Jinja2 -->
+<div id="data-storage" style="display:none;">{{ graph_data | safe }}</div>
+
 <script>
-    const layout = {
-        paper_bgcolor: "#1e293b",
-        plot_bgcolor: "#1e293b",
-        font: { color: "white" }
+// ── Récupération sécurisée des données ──────────────────────────────────────
+let D;
+try {
+    D = JSON.parse(document.getElementById('data-storage').textContent);
+} catch(e) {
+    console.error("Erreur parsing graph_data:", e);
+}
+
+if (!D) {
+    document.body.innerHTML = '<div style="color:red;padding:40px">Erreur : données non disponibles.</div>';
+}
+
+// ── Layout Plotly commun ─────────────────────────────────────────────────────
+const L = {
+    paper_bgcolor: "rgba(0,0,0,0)",
+    plot_bgcolor: "rgba(15,23,42,0.6)",
+    font: { color: "#cbd5e1", family: "Space Mono, monospace", size: 11 },
+    margin: { t: 40, b: 50, l: 55, r: 20 },
+    legend: { bgcolor: "rgba(0,0,0,0)", bordercolor: "#334155", borderwidth: 1 },
+    xaxis: { gridcolor: "#1e293b", linecolor: "#334155" },
+    yaxis: { gridcolor: "#1e293b", linecolor: "#334155" }
+};
+
+const COLORS = {
+    blue:     "#3b82f6",
+    orange:   "#f97316",
+    green:    "#22c55e",
+    red:      "#ef4444",
+    purple:   "#a855f7",
+    yellow:   "#eab308",
+    clusters: ["#3b82f6", "#22c55e", "#ef4444"]
+};
+
+// ── GRAPH 1 : Régression linéaire simple ────────────────────────────────────
+Plotly.newPlot("g_reg_simple", [
+    {
+        x: D.heures, y: D.revenu,
+        mode: "markers", name: "Données réelles",
+        marker: { color: COLORS.blue, size: 9, opacity: 0.8,
+                  line: { color: "#ffffff", width: 1 } }
+    },
+    {
+        x: D.heures, y: D.revenu_predit_simple,
+        mode: "lines", name: "Droite IA (R\u00b2=" + D.r2_simple + ")",
+        line: { color: COLORS.orange, width: 3 }
+    }
+], {
+    ...L,
+    title: { text: "Revenu = f(Heures de travail)", font: { color: "#f1f5f9", size: 14 } },
+    xaxis: { ...L.xaxis, title: "Heures / jour" },
+    yaxis: { ...L.yaxis, title: "Revenu (FCFA)" }
+});
+document.getElementById("info_reg_simple").innerHTML =
+    "<strong>Équation :</strong> Revenu = <em>" + D.coef_simple + "</em> × Heures + <em>" +
+    D.intercept_simple + "</em> &nbsp;|&nbsp; <strong>R² = " + D.r2_simple + "</strong>";
+
+// ── GRAPH 2 : Régression multiple (réel vs prédit) ───────────────────────────
+const indices = D.revenu.map(function(_, i) { return i + 1; });
+Plotly.newPlot("g_reg_multi", [
+    {
+        x: indices, y: D.revenu,
+        type: "scatter", mode: "markers+lines", name: "Revenu réel",
+        marker: { color: COLORS.blue, size: 7 },
+        line: { color: COLORS.blue, width: 1.5, dash: "dot" }
+    },
+    {
+        x: indices, y: D.revenu_predit_multi,
+        type: "scatter", mode: "lines",
+        name: "Prédiction IA (R\u00b2=" + D.r2_multi + ")",
+        line: { color: COLORS.green, width: 3 }
+    }
+], {
+    ...L,
+    title: { text: "Revenu réel vs Prédiction IA (Régression Multiple)", font: { color: "#f1f5f9", size: 14 } },
+    xaxis: { ...L.xaxis, title: "Conducteur #" },
+    yaxis: { ...L.yaxis, title: "Revenu (FCFA)" }
+});
+var cm = D.coefs_multi;
+document.getElementById("info_reg_multi").innerHTML =
+    "<strong>R² = " + D.r2_multi + "</strong> &nbsp;|&nbsp; Coefs : " +
+    "Heures <em>" + cm.heures_travail + "</em> · " +
+    "Clients <em>" + cm.clients + "</em> · " +
+    "Distance <em>" + cm.distance_km + "</em>";
+
+// ── GRAPH 3 : PCA ────────────────────────────────────────────────────────────
+Plotly.newPlot("g_pca", [{
+    x: D.pca1, y: D.pca2,
+    mode: "markers",
+    marker: {
+        size: 11,
+        color: D.clusters,
+        colorscale: [[0, COLORS.blue], [0.5, COLORS.green], [1, COLORS.red]],
+        opacity: 0.85,
+        line: { color: "#ffffff", width: 1 }
+    },
+    text: D.clusters.map(function(c) { return ["Performant","Modéré","À risque"][c]; }),
+    hovertemplate: "<b>%{text}</b><br>PC1: %{x:.2f}<br>PC2: %{y:.2f}<extra></extra>"
+}], {
+    ...L,
+    title: {
+        text: "ACP — Projection 2D (Variance : PC1 " + D.variance_ratio[0] + "%, PC2 " + D.variance_ratio[1] + "%)",
+        font: { color: "#f1f5f9", size: 13 }
+    },
+    xaxis: { ...L.xaxis, title: "PC1 (" + D.variance_ratio[0] + "%)" },
+    yaxis: { ...L.yaxis, title: "PC2 (" + D.variance_ratio[1] + "%)" }
+});
+document.getElementById("info_pca").innerHTML =
+    "PCA réduit 9 variables → 2 composantes principales. " +
+    "Variance totale expliquée : <strong>" + (D.variance_ratio[0] + D.variance_ratio[1]) + "%</strong>";
+
+// ── GRAPH 4a : Risque accident (Random Forest) ───────────────────────────────
+var riskColors = D.risque.map(function(v) {
+    return v > 60 ? COLORS.red : v > 30 ? COLORS.yellow : COLORS.green;
+});
+Plotly.newPlot("g_rf_risk", [{
+    x: D.risque_labels,
+    y: D.risque,
+    type: "bar",
+    marker: { color: riskColors, line: { color: "#0f172a", width: 1 } },
+    text: D.risque.map(function(v) { return v.toFixed(1) + "%"; }),
+    textposition: "outside",
+    hovertemplate: "<b>%{x}</b><br>Risque: %{y:.1f}%<extra></extra>"
+}], {
+    ...L,
+    title: { text: "Score de Risque Accident par Conducteur (%)", font: { color: "#f1f5f9", size: 13 } },
+    xaxis: { ...L.xaxis, title: "Conducteur" },
+    yaxis: { ...L.yaxis, title: "Probabilité d'accident (%)", range: [0, 110] },
+    shapes: [
+        { type: "line", x0: -0.5, x1: D.risque_labels.length - 0.5, y0: 60, y1: 60,
+          line: { color: COLORS.red, width: 1.5, dash: "dash" } },
+        { type: "line", x0: -0.5, x1: D.risque_labels.length - 0.5, y0: 30, y1: 30,
+          line: { color: COLORS.yellow, width: 1.5, dash: "dash" } }
+    ]
+});
+
+// ── GRAPH 4b : Importance des variables (Random Forest) ──────────────────────
+var fiKeys = Object.keys(D.feature_importance);
+var fiVals = Object.values(D.feature_importance);
+Plotly.newPlot("g_rf_importance", [{
+    x: fiVals, y: fiKeys,
+    type: "bar", orientation: "h",
+    marker: { color: fiVals, colorscale: "Purples" }
+}], {
+    ...L,
+    title: { text: "Importance des variables (Random Forest)", font: { color: "#f1f5f9", size: 12 } },
+    xaxis: { ...L.xaxis, title: "Importance (%)" },
+    yaxis: { ...L.yaxis }
+});
+
+// ── GRAPH 5 : K-Means clustering ─────────────────────────────────────────────
+var clusterNames = ["Performant", "Modéré", "À risque"];
+var clusterTraces = [0, 1, 2].map(function(c) {
+    return {
+        x: D.revenu.filter(function(_, i) { return D.clusters[i] === c; }),
+        y: D.fatigue.filter(function(_, i) { return D.clusters[i] === c; }),
+        mode: "markers",
+        name: clusterNames[c],
+        marker: {
+            color: COLORS.clusters[c], size: 12, opacity: 0.85,
+            symbol: ["circle", "square", "diamond"][c],
+            line: { color: "#ffffff", width: 1 }
+        }
     };
+});
+Plotly.newPlot("g_kmeans", clusterTraces, {
+    ...L,
+    title: { text: "Segmentation K-Means : Revenu vs Fatigue", font: { color: "#f1f5f9", size: 13 } },
+    xaxis: { ...L.xaxis, title: "Revenu (FCFA)" },
+    yaxis: { ...L.yaxis, title: "Fatigue (1-10)" }
+});
+document.getElementById("info_kmeans").innerHTML =
+    "3 segments : " +
+    "<span style=\"color:" + COLORS.clusters[0] + "\">● Performant</span> · " +
+    "<span style=\"color:" + COLORS.clusters[1] + "\">■ Modéré</span> · " +
+    "<span style=\"color:" + COLORS.clusters[2] + "\">◆ À risque</span>";
 
-    // Récupération et parsing sécurisé des données JSON
-    let dataIA;
-    try {
-        const jsonContainer = document.getElementById('data-storage');
-        dataIA = JSON.parse(jsonContainer.textContent);
-    } catch (e) {
-        console.error("Erreur lors du parsing de graph_data :", e);
-    }
+// ── Barres de fatigue : style appliqué via JS pour éviter Jinja2 dans style="" ─
+document.querySelectorAll('.fatigue-fill').forEach(function(el) {
+    el.style.width      = el.getAttribute('data-w');
+    el.style.background = el.getAttribute('data-c');
+});
 
-    if (dataIA) {
-        // Graph 1 : Revenu vs Heures
-        Plotly.newPlot("g1", [
-            {
-                x: dataIA.heures,
-                y: dataIA.revenu,
-                mode: "markers",
-                name: "Réel",
-                marker: { color: "#3b82f6" }
-            },
-            {
-                x: dataIA.heures,
-                y: dataIA.revenu_predit,
-                mode: "lines",
-                name: "IA",
-                line: { color: "red" }
-            }
-        ], { ...layout, title: "Revenu vs Heures" });
-
-        // Graph 2 : Segments Fatigue
-        Plotly.newPlot("g2", [{
-            x: dataIA.revenu,
-            y: dataIA.fatigue,
-            mode: "markers",
-            marker: {
-                size: 12,
-                color: dataIA.clusters,
-                colorscale: "Viridis",
-                showscale: true
-            }
-        }], { ...layout, title: "Segments Fatigue" });
-
-        // Graph 3 : Risque Accident
-        Plotly.newPlot("g3", [{
-            x: dataIA.risque.map((_, i) => "C" + (i + 1)),
-            y: dataIA.risque,
-            type: "bar",
-            marker: { color: "#3b82f6" }
-        }], { ...layout, title: "Risque Accident (%)" });
-
-    } else {
-        console.warn("Aucune donnée disponible pour afficher les graphiques.");
-    }
+// ── Responsive ────────────────────────────────────────────────────────────────
+window.addEventListener('resize', function() {
+    ['g_reg_simple','g_reg_multi','g_pca','g_rf_risk','g_rf_importance','g_kmeans']
+        .forEach(function(id) { Plotly.Plots.resize(document.getElementById(id)); });
+});
 </script>
 </body>
 </html>
