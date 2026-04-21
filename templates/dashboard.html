@@ -19,13 +19,44 @@
 
 <div class="dash-container">
 
-    <!-- Hero Banner -->
+    <!-- HERO BANNER -->
     <div class="hero-banner">
-        <div>
+        <div class="hero-text">
             <h1>Observatoire Intelligent <span class="accent">Moto-Taxi</span></h1>
-            <p>Analyse IA en temps réel · Yaoundé, Cameroun</p>
+            <p class="hero-subtitle">Plateforme d'analyse de données IA · Yaoundé, Cameroun</p>
+            <div class="hero-desc">
+                <p>
+                    Cette application collecte et analyse les données opérationnelles des conducteurs de
+                    moto-taxi (<strong>Benskin</strong>) à Yaoundé. Via un formulaire en ligne, chaque
+                    conducteur renseigne ses données journalières : heures de travail, revenus, distance
+                    parcourue, nombre de clients, consommation de carburant, niveau de fatigue et note
+                    de satisfaction client. Ces données sont stockées en temps réel dans une base de
+                    données <strong>Supabase (PostgreSQL cloud)</strong>.
+                </p>
+                <p>
+                    Le moteur d'analyse applique automatiquement <strong>5 techniques statistiques et
+                    d'apprentissage automatique</strong> sur les données collectées : régression linéaire
+                    simple et multiple pour la prédiction de revenus, réduction de dimensionnalité par
+                    ACP pour visualiser les profils conducteurs, classification supervisée par Forêt
+                    Aléatoire pour évaluer le risque d'accident, et classification non supervisée par
+                    K-Means pour segmenter les conducteurs en groupes homogènes.
+                </p>
+                <div class="hero-features">
+                    <span class="feat-badge">📊 Collecte en ligne</span>
+                    <span class="feat-badge">🤖 5 modèles IA</span>
+                    <span class="feat-badge">🗄️ Supabase PostgreSQL</span>
+                    <span class="feat-badge">📈 Visualisation temps réel</span>
+                    <span class="feat-badge">🔒 Prévention accidents</span>
+                    <span class="feat-badge">🎯 Optimisation revenus</span>
+                </div>
+            </div>
         </div>
-        <div class="hero-badge">IA Active</div>
+        <div class="hero-right">
+            <div class="hero-badge">
+                <span class="badge-dot"></span>
+                IA Active
+            </div>
+        </div>
     </div>
 
     <!-- KPI Cards -->
@@ -62,12 +93,27 @@
         </div>
     </div>
 
-    <!-- Section 1 : Régression simple -->
+    <!-- ══ SECTION 1 : RÉGRESSION LINÉAIRE SIMPLE ══ -->
     <div class="section-header">
         <div class="section-tag">01</div>
         <div>
             <h2>Régression Linéaire Simple</h2>
-            <p>Revenu prédit en fonction des heures de travail</p>
+            <p>Modélisation du revenu en fonction d'une seule variable explicative : les heures de travail</p>
+        </div>
+    </div>
+    <div class="analysis-desc">
+        <div class="desc-block">
+            <h4>🎯 Objectif</h4>
+            <p>Quantifier la relation linéaire entre le nombre d'heures travaillées par jour et le revenu journalier d'un conducteur Benskin. Ce modèle permet de répondre à la question : <em>chaque heure de travail supplémentaire génère-t-elle un gain de revenu significatif et constant ?</em></p>
+        </div>
+        <div class="desc-block">
+            <h4>📐 Formule mathématique</h4>
+            <div class="formula">Ŷ = β₀ + β₁ · X₁ + ε</div>
+            <p><strong>Ŷ</strong> = revenu prédit (FCFA) · <strong>β₀</strong> = constante (intercept, revenu de base) · <strong>β₁</strong> = coefficient directeur (gain marginal par heure) · <strong>X₁</strong> = heures de travail · <strong>ε</strong> = erreur résiduelle. Les paramètres β sont estimés par la méthode des <strong>Moindres Carrés Ordinaires (MCO)</strong> qui minimise Σ(Yᵢ − Ŷᵢ)².</p>
+        </div>
+        <div class="desc-block">
+            <h4>📊 Coefficient de détermination R²</h4>
+            <p>Le <strong>R²</strong> mesure la proportion de variance du revenu expliquée par les heures de travail : R² = 1 − (SSrés / SStot). Un R² proche de 1 indique un excellent ajustement. La droite orange représente le modèle ajusté, les points bleus les observations réelles.</p>
         </div>
     </div>
     <div class="card graph-card">
@@ -75,12 +121,27 @@
         <div class="model-info" id="info_reg_simple"></div>
     </div>
 
-    <!-- Section 2 : Régression multiple -->
+    <!-- ══ SECTION 2 : RÉGRESSION LINÉAIRE MULTIPLE ══ -->
     <div class="section-header">
         <div class="section-tag">02</div>
         <div>
             <h2>Régression Linéaire Multiple</h2>
-            <p>Revenu prédit : Heures + Clients + Distance</p>
+            <p>Prédiction du revenu à partir de 3 variables : heures de travail, nombre de clients et distance parcourue</p>
+        </div>
+    </div>
+    <div class="analysis-desc">
+        <div class="desc-block">
+            <h4>🎯 Objectif</h4>
+            <p>Améliorer la précision de prédiction du revenu en intégrant plusieurs variables explicatives simultanément. Ce modèle capture l'effet conjoint des heures de travail, du nombre de clients servis et de la distance parcourue, qui sont les 3 principaux facteurs déterminants du revenu d'un Benskin.</p>
+        </div>
+        <div class="desc-block">
+            <h4>📐 Formule mathématique</h4>
+            <div class="formula">Ŷ = β₀ + β₁·X₁ + β₂·X₂ + β₃·X₃ + ε</div>
+            <p><strong>X₁</strong> = heures de travail · <strong>X₂</strong> = nombre de clients · <strong>X₃</strong> = distance (km). Chaque coefficient βₖ mesure l'effet marginal de la variable Xₖ sur le revenu, <em>toutes les autres variables maintenues constantes</em>. L'estimation reste par MCO sur la matrice augmentée X = [1, X₁, X₂, X₃].</p>
+        </div>
+        <div class="desc-block">
+            <h4>📊 Gain d'information vs modèle simple</h4>
+            <p>En ajoutant des variables explicatives, le R² augmente (ou reste stable). La différence ΔR² = R²(multiple) − R²(simple) mesure le <strong>gain d'information</strong> apporté par les variables supplémentaires. La courbe verte représente la prédiction IA, la courbe bleue les valeurs réelles observées.</p>
         </div>
     </div>
     <div class="card graph-card">
@@ -88,12 +149,27 @@
         <div class="model-info" id="info_reg_multi"></div>
     </div>
 
-    <!-- Section 3 : PCA -->
+    <!-- ══ SECTION 3 : PCA ══ -->
     <div class="section-header">
         <div class="section-tag">03</div>
         <div>
-            <h2>Réduction de Dimensionnalité (PCA)</h2>
-            <p>Projection 2D de 9 variables — visualisation des profils conducteurs</p>
+            <h2>Réduction de Dimensionnalité — Analyse en Composantes Principales (ACP)</h2>
+            <p>Projection de 9 variables dans un espace 2D pour visualiser et comparer les profils des conducteurs</p>
+        </div>
+    </div>
+    <div class="analysis-desc">
+        <div class="desc-block">
+            <h4>🎯 Objectif</h4>
+            <p>Réduire la complexité des données en transformant les 9 variables mesurées (âge, expérience, heures, clients, revenu, fatigue, distance, carburant, note) en un petit nombre de <strong>composantes principales non corrélées</strong>, tout en conservant le maximum d'information statistique. Cela permet de visualiser visuellement les ressemblances entre conducteurs.</p>
+        </div>
+        <div class="desc-block">
+            <h4>📐 Formule mathématique</h4>
+            <div class="formula">PCₖ = Σᵢ aᵢₖ · Xᵢ &nbsp;·&nbsp; Cov(X) · aₖ = λₖ · aₖ</div>
+            <p>Les composantes principales sont les <strong>vecteurs propres</strong> (aₖ) de la matrice de covariance, associés aux <strong>valeurs propres</strong> (λₖ) ordonnées de façon décroissante. PC1 capture la variance maximale, PC2 la seconde plus grande variance orthogonalement à PC1. Les données sont préalablement <strong>centrées-réduites</strong> (µ=0, σ=1) via StandardScaler.</p>
+        </div>
+        <div class="desc-block">
+            <h4>📊 Lecture du graphique</h4>
+            <p>Chaque point = 1 conducteur projeté dans l'espace factoriel (PC1, PC2). Les points <strong>proches</strong> ont des profils similaires. Les points <strong>éloignés</strong> sont des profils atypiques. La couleur indique le segment K-Means. Le pourcentage affiché indique la proportion de variance totale conservée par chaque axe.</p>
         </div>
     </div>
     <div class="card graph-card">
@@ -101,27 +177,58 @@
         <div class="model-info" id="info_pca"></div>
     </div>
 
-    <!-- Section 4 & 5 : Classification -->
+    <!-- ══ SECTIONS 4 & 5 : CLASSIFICATIONS ══ -->
     <div class="graph-row">
         <div>
             <div class="section-header">
                 <div class="section-tag">04</div>
                 <div>
                     <h2>Classification Supervisée</h2>
-                    <p>Random Forest — Risque d'accident</p>
+                    <p>Algorithme Random Forest — Prédiction du risque d'accident par conducteur</p>
+                </div>
+            </div>
+            <div class="analysis-desc">
+                <div class="desc-block">
+                    <h4>🎯 Objectif</h4>
+                    <p>Prédire la <strong>probabilité qu'un conducteur ait un accident</strong> en fonction de ses caractéristiques (fatigue, expérience, âge, heures, distance). La classification est dite <em>supervisée</em> car le modèle apprend à partir d'exemples labellisés (accident = oui/non).</p>
+                </div>
+                <div class="desc-block">
+                    <h4>📐 Algorithme : Forêt Aléatoire (Random Forest)</h4>
+                    <div class="formula">P̂(accident|x) = (1/B) · Σᵦ Tᵦ(x)</div>
+                    <p>B=50 arbres de décision indépendants, chacun entraîné sur un sous-échantillon bootstrap (tirage avec remise). Le score P̂ est la <strong>moyenne des probabilités</strong> prédites par tous les arbres. Cette agrégation (<em>bagging</em>) réduit la variance et le surapprentissage par rapport à un arbre unique.</p>
+                </div>
+                <div class="desc-block">
+                    <h4>📊 Seuils et importance des variables</h4>
+                    <p>Ligne rouge = seuil danger (60%) · Ligne jaune = seuil vigilance (30%). Le second graphique montre l'<strong>importance relative</strong> de chaque variable dans la décision du modèle (= somme des réductions d'impureté de Gini sur tous les arbres).</p>
                 </div>
             </div>
             <div class="card graph-card">
-                <div id="g_rf_risk" style="height:360px;"></div>
-                <div id="g_rf_importance" style="height:300px;"></div>
+                <div id="g_rf_risk" style="height:320px;"></div>
+                <div id="g_rf_importance" style="height:280px;"></div>
             </div>
         </div>
+
         <div>
             <div class="section-header">
                 <div class="section-tag">05</div>
                 <div>
                     <h2>Classification Non-Supervisée</h2>
-                    <p>K-Means — Segmentation conducteurs</p>
+                    <p>Algorithme K-Means — Segmentation automatique des conducteurs en 3 groupes</p>
+                </div>
+            </div>
+            <div class="analysis-desc">
+                <div class="desc-block">
+                    <h4>🎯 Objectif</h4>
+                    <p>Regrouper automatiquement les conducteurs en <strong>3 segments homogènes</strong> sans labels prédéfinis, uniquement à partir de leurs données (revenu, fatigue, clients, note). La classification est dite <em>non supervisée</em> car aucune variable cible n'est utilisée. On cherche la structure cachée dans les données.</p>
+                </div>
+                <div class="desc-block">
+                    <h4>📐 Algorithme : K-Means</h4>
+                    <div class="formula">argmin{Cₖ} Σₖ₌₁³ Σₓ∈Cₖ ‖x − μₖ‖²</div>
+                    <p>L'algorithme minimise l'<strong>inertie intra-cluster</strong> (somme des distances quadratiques aux centroïdes μₖ). Il alterne entre : (1) <em>affectation</em> — chaque point rejoint le centroïde le plus proche ; (2) <em>mise à jour</em> — recalcul des centroïdes. Convergence garantie (n_init=10 initialisations aléatoires).</p>
+                </div>
+                <div class="desc-block">
+                    <h4>📊 Segments identifiés</h4>
+                    <p><strong>● Performant</strong> : revenu élevé + faible fatigue = conducteur efficace. <strong>■ Modéré</strong> : profil équilibré intermédiaire. <strong>◆ À risque</strong> : fatigue élevée + revenu bas = conducteur en difficulté nécessitant une attention particulière.</p>
                 </div>
             </div>
             <div class="card graph-card">
@@ -131,10 +238,32 @@
         </div>
     </div>
 
-    <!-- Tableau de données -->
+    <!-- ══ TABLEAU DONNÉES SUPABASE ══ -->
     <div class="section-header">
-        <div class="section-tag">📋</div>
-        <div><h2>Données sources</h2><p>Toutes les entrées Supabase</p></div>
+        <div class="section-tag">🗄️</div>
+        <div>
+            <h2>Source de Données — Base PostgreSQL Supabase</h2>
+            <p>Données collectées en temps réel via le formulaire de saisie et stockées dans le cloud</p>
+        </div>
+    </div>
+    <div class="supabase-desc">
+        <div class="supa-icon">🗄️</div>
+        <div>
+            <h4>Infrastructure de stockage : Supabase (PostgreSQL Cloud)</h4>
+            <p>
+                Les données présentées ci-dessous sont stockées dans une base de données relationnelle
+                <strong>PostgreSQL</strong> hébergée sur <strong>Supabase</strong>, une plateforme
+                Backend-as-a-Service open-source. Chaque ligne de la table <code>conducteurs</code>
+                correspond à une entrée soumise via le formulaire de collecte. Les données sont
+                récupérées en temps réel via l'<strong>API REST Supabase</strong> à chaque chargement
+                du dashboard — ce qui garantit que toutes les analyses et visualisations reflètent
+                toujours l'état le plus récent de la base. La table comporte
+                <strong>11 variables</strong> : 9 quantitatives (âge, expérience, heures, clients,
+                revenu, fatigue, distance, carburant, note) et 2 qualitatives (zone, accident).
+                Deux variables calculées sont ajoutées dynamiquement par les modèles IA :
+                <code>risque_score</code> (Random Forest) et <code>cluster_label</code> (K-Means).
+            </p>
+        </div>
     </div>
     <div class="card table-card">
         <div class="table-scroll">
@@ -157,7 +286,9 @@
                     <td><strong>{{ row.revenu | int }} FCFA</strong></td>
                     <td>
                         <span class="fatigue-bar">
-                            <span class="fatigue-fill" data-w="{{ row.fatigue_width }}" data-c="{{ row.fatigue_color }}"></span>
+                            <span class="fatigue-fill"
+                                  data-w="{{ row.fatigue_width }}"
+                                  data-c="{{ row.fatigue_color }}"></span>
                         </span>
                         {{ row.fatigue }}/10
                     </td>
@@ -176,139 +307,113 @@
         </div>
     </div>
 
+    <!-- BOUTON GRAND VISIBLE POUR LE PROF -->
+    <div class="prof-cta-wrapper">
+        <p class="prof-cta-label">Cliquez sur le bouton ci-dessous pour accéder au formulaire de collecte et soumettre de nouvelles données :</p>
+        <a href="/" class="prof-cta-btn">
+            🏍️ &nbsp; Accéder au Formulaire de Collecte de Données
+        </a>
+    </div>
+
 </div>
 
-<!-- Données JSON injectées par Flask/Jinja2 -->
 <div id="data-storage" style="display:none;">{{ graph_data | safe }}</div>
 
 <script>
-// ── Récupération sécurisée des données ──────────────────────────────────────
-let D;
+var D;
 try {
     D = JSON.parse(document.getElementById('data-storage').textContent);
 } catch(e) {
     console.error("Erreur parsing graph_data:", e);
 }
-
 if (!D) {
-    document.body.innerHTML = '<div style="color:red;padding:40px">Erreur : données non disponibles.</div>';
+    document.body.innerHTML = '<div style="color:red;padding:40px;font-size:1.2rem">Erreur : données non disponibles.</div>';
 }
 
-// ── Layout Plotly commun ─────────────────────────────────────────────────────
-const L = {
+var L = {
     paper_bgcolor: "rgba(0,0,0,0)",
     plot_bgcolor: "rgba(15,23,42,0.6)",
     font: { color: "#cbd5e1", family: "Space Mono, monospace", size: 11 },
-    margin: { t: 40, b: 50, l: 55, r: 20 },
+    margin: { t: 50, b: 55, l: 65, r: 30 },
     legend: { bgcolor: "rgba(0,0,0,0)", bordercolor: "#334155", borderwidth: 1 },
     xaxis: { gridcolor: "#1e293b", linecolor: "#334155" },
     yaxis: { gridcolor: "#1e293b", linecolor: "#334155" }
 };
-
-const COLORS = {
-    blue:     "#3b82f6",
-    orange:   "#f97316",
-    green:    "#22c55e",
-    red:      "#ef4444",
-    purple:   "#a855f7",
-    yellow:   "#eab308",
+var COLORS = {
+    blue: "#3b82f6", orange: "#f97316", green: "#22c55e",
+    red: "#ef4444", purple: "#a855f7", yellow: "#eab308",
     clusters: ["#3b82f6", "#22c55e", "#ef4444"]
 };
 
-// ── GRAPH 1 : Régression linéaire simple ────────────────────────────────────
+// GRAPH 1 — Régression simple
 Plotly.newPlot("g_reg_simple", [
-    {
-        x: D.heures, y: D.revenu,
-        mode: "markers", name: "Données réelles",
-        marker: { color: COLORS.blue, size: 9, opacity: 0.8,
-                  line: { color: "#ffffff", width: 1 } }
-    },
-    {
-        x: D.heures, y: D.revenu_predit_simple,
-        mode: "lines", name: "Droite IA (R\u00b2=" + D.r2_simple + ")",
-        line: { color: COLORS.orange, width: 3 }
-    }
-], {
-    ...L,
-    title: { text: "Revenu = f(Heures de travail)", font: { color: "#f1f5f9", size: 14 } },
-    xaxis: { ...L.xaxis, title: "Heures / jour" },
-    yaxis: { ...L.yaxis, title: "Revenu (FCFA)" }
+    { x: D.heures, y: D.revenu, mode: "markers", name: "Données réelles",
+      marker: { color: COLORS.blue, size: 10, opacity: 0.85, line: { color: "#fff", width: 1.5 } } },
+    { x: D.heures, y: D.revenu_predit_simple, mode: "lines",
+      name: "Droite MCO (R\u00b2=" + D.r2_simple + ")",
+      line: { color: COLORS.orange, width: 3 } }
+], { ...L,
+    title: { text: "Ŷ = β₀ + β₁·Heures — Droite des moindres carrés", font: { color: "#f1f5f9", size: 14 } },
+    xaxis: { ...L.xaxis, title: "Heures de travail / jour" },
+    yaxis: { ...L.yaxis, title: "Revenu journalier (FCFA)" }
 });
 document.getElementById("info_reg_simple").innerHTML =
-    "<strong>Équation :</strong> Revenu = <em>" + D.coef_simple + "</em> × Heures + <em>" +
-    D.intercept_simple + "</em> &nbsp;|&nbsp; <strong>R² = " + D.r2_simple + "</strong>";
+    "<strong>Équation MCO estimée :</strong> Ŷ = <em>" + D.intercept_simple + "</em> + <em>" + D.coef_simple +
+    "</em> × Heures &nbsp;|&nbsp; <strong>R² = " + D.r2_simple + "</strong> &nbsp;|&nbsp; " +
+    "Gain marginal : <em>+" + D.coef_simple + " FCFA</em> par heure travaillée supplémentaire";
 
-// ── GRAPH 2 : Régression multiple (réel vs prédit) ───────────────────────────
-const indices = D.revenu.map(function(_, i) { return i + 1; });
+// GRAPH 2 — Régression multiple
+var idx = D.revenu.map(function(_, i) { return "C" + (i + 1); });
 Plotly.newPlot("g_reg_multi", [
-    {
-        x: indices, y: D.revenu,
-        type: "scatter", mode: "markers+lines", name: "Revenu réel",
-        marker: { color: COLORS.blue, size: 7 },
-        line: { color: COLORS.blue, width: 1.5, dash: "dot" }
-    },
-    {
-        x: indices, y: D.revenu_predit_multi,
-        type: "scatter", mode: "lines",
-        name: "Prédiction IA (R\u00b2=" + D.r2_multi + ")",
-        line: { color: COLORS.green, width: 3 }
-    }
-], {
-    ...L,
-    title: { text: "Revenu réel vs Prédiction IA (Régression Multiple)", font: { color: "#f1f5f9", size: 14 } },
-    xaxis: { ...L.xaxis, title: "Conducteur #" },
-    yaxis: { ...L.yaxis, title: "Revenu (FCFA)" }
+    { x: idx, y: D.revenu, type: "scatter", mode: "markers+lines", name: "Revenu réel (observé)",
+      marker: { color: COLORS.blue, size: 8 }, line: { color: COLORS.blue, width: 1.5, dash: "dot" } },
+    { x: idx, y: D.revenu_predit_multi, type: "scatter", mode: "lines",
+      name: "Prédiction IA multiple (R\u00b2=" + D.r2_multi + ")",
+      line: { color: COLORS.green, width: 3 } }
+], { ...L,
+    title: { text: "Ŷ = β₀+β₁·Heures+β₂·Clients+β₃·Distance — Valeurs réelles vs prédites", font: { color: "#f1f5f9", size: 12 } },
+    xaxis: { ...L.xaxis, title: "Conducteur" },
+    yaxis: { ...L.yaxis, title: "Revenu journalier (FCFA)" }
 });
 var cm = D.coefs_multi;
 document.getElementById("info_reg_multi").innerHTML =
-    "<strong>R² = " + D.r2_multi + "</strong> &nbsp;|&nbsp; Coefs : " +
-    "Heures <em>" + cm.heures_travail + "</em> · " +
-    "Clients <em>" + cm.clients + "</em> · " +
-    "Distance <em>" + cm.distance_km + "</em>";
+    "<strong>R² = " + D.r2_multi + "</strong> (vs R²=" + D.r2_simple + " en simple) &nbsp;|&nbsp; " +
+    "β₁(Heures) = <em>" + cm.heures_travail + "</em> · β₂(Clients) = <em>" + cm.clients +
+    "</em> · β₃(Distance) = <em>" + cm.distance_km + "</em> &nbsp;|&nbsp; " +
+    "ΔR² = <em>+" + (D.r2_multi - D.r2_simple).toFixed(3) + "</em> vs modèle simple";
 
-// ── GRAPH 3 : PCA ────────────────────────────────────────────────────────────
+// GRAPH 3 — PCA
 Plotly.newPlot("g_pca", [{
-    x: D.pca1, y: D.pca2,
-    mode: "markers",
-    marker: {
-        size: 11,
-        color: D.clusters,
-        colorscale: [[0, COLORS.blue], [0.5, COLORS.green], [1, COLORS.red]],
-        opacity: 0.85,
-        line: { color: "#ffffff", width: 1 }
-    },
+    x: D.pca1, y: D.pca2, mode: "markers",
+    marker: { size: 12, color: D.clusters,
+              colorscale: [[0, COLORS.blue],[0.5, COLORS.green],[1, COLORS.red]],
+              opacity: 0.88, line: { color: "#fff", width: 1.5 } },
     text: D.clusters.map(function(c) { return ["Performant","Modéré","À risque"][c]; }),
-    hovertemplate: "<b>%{text}</b><br>PC1: %{x:.2f}<br>PC2: %{y:.2f}<extra></extra>"
-}], {
-    ...L,
-    title: {
-        text: "ACP — Projection 2D (Variance : PC1 " + D.variance_ratio[0] + "%, PC2 " + D.variance_ratio[1] + "%)",
-        font: { color: "#f1f5f9", size: 13 }
-    },
-    xaxis: { ...L.xaxis, title: "PC1 (" + D.variance_ratio[0] + "%)" },
-    yaxis: { ...L.yaxis, title: "PC2 (" + D.variance_ratio[1] + "%)" }
+    hovertemplate: "<b>%{text}</b><br>PC1 = %{x:.3f}<br>PC2 = %{y:.3f}<extra></extra>"
+}], { ...L,
+    title: { text: "ACP — Espace factoriel 2D · PC1=" + D.variance_ratio[0] + "% · PC2=" + D.variance_ratio[1] + "% de variance expliquée",
+             font: { color: "#f1f5f9", size: 12 } },
+    xaxis: { ...L.xaxis, title: "PC1 — 1ère Composante (" + D.variance_ratio[0] + "% variance)" },
+    yaxis: { ...L.yaxis, title: "PC2 — 2ème Composante (" + D.variance_ratio[1] + "% variance)" }
 });
 document.getElementById("info_pca").innerHTML =
-    "PCA réduit 9 variables → 2 composantes principales. " +
-    "Variance totale expliquée : <strong>" + (D.variance_ratio[0] + D.variance_ratio[1]) + "%</strong>";
+    "9 variables → 2 composantes principales (StandardScaler + décomposition spectrale de la matrice de covariance). " +
+    "Variance totale conservée : <strong>" + (D.variance_ratio[0] + D.variance_ratio[1]).toFixed(1) + "%</strong>. " +
+    "Chaque point = 1 conducteur. Proximité = similarité de profil. Couleur = segment K-Means.";
 
-// ── GRAPH 4a : Risque accident (Random Forest) ───────────────────────────────
-var riskColors = D.risque.map(function(v) {
-    return v > 60 ? COLORS.red : v > 30 ? COLORS.yellow : COLORS.green;
-});
+// GRAPH 4a — Random Forest risk
+var riskColors = D.risque.map(function(v) { return v > 60 ? COLORS.red : v > 30 ? COLORS.yellow : COLORS.green; });
 Plotly.newPlot("g_rf_risk", [{
-    x: D.risque_labels,
-    y: D.risque,
-    type: "bar",
+    x: D.risque_labels, y: D.risque, type: "bar",
     marker: { color: riskColors, line: { color: "#0f172a", width: 1 } },
     text: D.risque.map(function(v) { return v.toFixed(1) + "%"; }),
     textposition: "outside",
-    hovertemplate: "<b>%{x}</b><br>Risque: %{y:.1f}%<extra></extra>"
-}], {
-    ...L,
-    title: { text: "Score de Risque Accident par Conducteur (%)", font: { color: "#f1f5f9", size: 13 } },
+    hovertemplate: "<b>Conducteur %{x}</b><br>P(accident) = %{y:.1f}%<extra></extra>"
+}], { ...L,
+    title: { text: "P̂(accident|x) — Random Forest 50 arbres (bagging)", font: { color: "#f1f5f9", size: 12 } },
     xaxis: { ...L.xaxis, title: "Conducteur" },
-    yaxis: { ...L.yaxis, title: "Probabilité d'accident (%)", range: [0, 110] },
+    yaxis: { ...L.yaxis, title: "Probabilité d'accident (%)", range: [0, 120] },
+    margin: { t: 50, b: 55, l: 60, r: 30 },
     shapes: [
         { type: "line", x0: -0.5, x1: D.risque_labels.length - 0.5, y0: 60, y1: 60,
           line: { color: COLORS.red, width: 1.5, dash: "dash" } },
@@ -317,54 +422,50 @@ Plotly.newPlot("g_rf_risk", [{
     ]
 });
 
-// ── GRAPH 4b : Importance des variables (Random Forest) ──────────────────────
+// GRAPH 4b — Feature importance
 var fiKeys = Object.keys(D.feature_importance);
 var fiVals = Object.values(D.feature_importance);
 Plotly.newPlot("g_rf_importance", [{
-    x: fiVals, y: fiKeys,
-    type: "bar", orientation: "h",
-    marker: { color: fiVals, colorscale: "Purples" }
-}], {
-    ...L,
-    title: { text: "Importance des variables (Random Forest)", font: { color: "#f1f5f9", size: 12 } },
+    x: fiVals, y: fiKeys, type: "bar", orientation: "h",
+    marker: { color: fiVals, colorscale: "Purples" },
+    text: fiVals.map(function(v) { return v.toFixed(1) + "%"; }),
+    textposition: "outside"
+}], { ...L,
+    title: { text: "Importance des variables (réduction impureté de Gini)", font: { color: "#f1f5f9", size: 11 } },
     xaxis: { ...L.xaxis, title: "Importance (%)" },
-    yaxis: { ...L.yaxis }
+    yaxis: { ...L.yaxis },
+    margin: { t: 40, b: 50, l: 120, r: 60 }
 });
 
-// ── GRAPH 5 : K-Means clustering ─────────────────────────────────────────────
-var clusterNames = ["Performant", "Modéré", "À risque"];
-var clusterTraces = [0, 1, 2].map(function(c) {
+// GRAPH 5 — K-Means
+var clusterNames = ["Performant","Modéré","À risque"];
+var clusterTraces = [0,1,2].map(function(c) {
     return {
         x: D.revenu.filter(function(_, i) { return D.clusters[i] === c; }),
         y: D.fatigue.filter(function(_, i) { return D.clusters[i] === c; }),
-        mode: "markers",
-        name: clusterNames[c],
-        marker: {
-            color: COLORS.clusters[c], size: 12, opacity: 0.85,
-            symbol: ["circle", "square", "diamond"][c],
-            line: { color: "#ffffff", width: 1 }
-        }
+        mode: "markers", name: clusterNames[c],
+        marker: { color: COLORS.clusters[c], size: 13, opacity: 0.88,
+                  symbol: ["circle","square","diamond"][c], line: { color: "#fff", width: 1.5 } }
     };
 });
-Plotly.newPlot("g_kmeans", clusterTraces, {
-    ...L,
-    title: { text: "Segmentation K-Means : Revenu vs Fatigue", font: { color: "#f1f5f9", size: 13 } },
-    xaxis: { ...L.xaxis, title: "Revenu (FCFA)" },
-    yaxis: { ...L.yaxis, title: "Fatigue (1-10)" }
+Plotly.newPlot("g_kmeans", clusterTraces, { ...L,
+    title: { text: "K-Means (k=3) — argmin Σₖ Σₓ∈Cₖ ‖x−μₖ‖² · Revenu vs Fatigue", font: { color: "#f1f5f9", size: 11 } },
+    xaxis: { ...L.xaxis, title: "Revenu journalier (FCFA)" },
+    yaxis: { ...L.yaxis, title: "Niveau de fatigue (1–10)" }
 });
 document.getElementById("info_kmeans").innerHTML =
-    "3 segments : " +
-    "<span style=\"color:" + COLORS.clusters[0] + "\">● Performant</span> · " +
-    "<span style=\"color:" + COLORS.clusters[1] + "\">■ Modéré</span> · " +
-    "<span style=\"color:" + COLORS.clusters[2] + "\">◆ À risque</span>";
+    "K-Means, k=3, données standardisées (µ=0, σ=1). Convergence après n_init=10 initialisations. " +
+    "Segments : <span style=\"color:" + COLORS.clusters[0] + "\"><strong>● Performant</strong></span> · " +
+    "<span style=\"color:" + COLORS.clusters[1] + "\"><strong>■ Modéré</strong></span> · " +
+    "<span style=\"color:" + COLORS.clusters[2] + "\"><strong>◆ À risque</strong></span>";
 
-// ── Barres de fatigue : style appliqué via JS pour éviter Jinja2 dans style="" ─
+// Barres de fatigue
 document.querySelectorAll('.fatigue-fill').forEach(function(el) {
-    el.style.width      = el.getAttribute('data-w');
+    el.style.width = el.getAttribute('data-w');
     el.style.background = el.getAttribute('data-c');
 });
 
-// ── Responsive ────────────────────────────────────────────────────────────────
+// Responsive
 window.addEventListener('resize', function() {
     ['g_reg_simple','g_reg_multi','g_pca','g_rf_risk','g_rf_importance','g_kmeans']
         .forEach(function(id) { Plotly.Plots.resize(document.getElementById(id)); });
