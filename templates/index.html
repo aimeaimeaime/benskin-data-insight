@@ -139,11 +139,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Benskin Analytics — Collecte</title>
+    <title>Benskin Analytics — Collecte de Données</title>
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/style.css">
     <style>
         /* ── Styles validation inline ── */
+        .hint-range {
+            color: #64748b; font-size: 0.72rem;
+            font-family: 'Space Mono', monospace;
+            font-weight: 400;
+        }
+
         .field-error {
             display: none;
             font-size: 0.72rem;
@@ -158,36 +164,128 @@
         }
         .field-error.visible { display: block; }
 
-        input.invalid {
+        input.invalid, select.invalid {
             border-color: #ef4444 !important;
             box-shadow: 0 0 0 3px rgba(239,68,68,0.15) !important;
         }
-        input.valid {
+        input.valid, select.valid {
             border-color: #22c55e !important;
             box-shadow: 0 0 0 3px rgba(34,197,94,0.1) !important;
         }
 
         .form-toast {
-            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            position: fixed; top: 20px; left: 50%;
+            transform: translateX(-50%);
             background: #ef4444; color: white;
             padding: 14px 28px; border-radius: 10px;
             font-size: 0.88rem; font-weight: 700;
             font-family: 'Space Mono', monospace;
             z-index: 999; box-shadow: 0 8px 24px rgba(0,0,0,0.4);
             display: none; white-space: nowrap;
+        }
+        .form-toast.show {
+            display: block;
             animation: slideDown 0.3s ease;
         }
-        .form-toast.show { display: block; }
 
-        @keyframes fadeIn  { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:none; } }
-        @keyframes slideDown { from { opacity:0; transform:translateX(-50%) translateY(-16px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
-
+        /* Hint de conversion — uniquement pour les champs float */
         .converted-hint {
             font-size: 0.7rem; color: #22c55e;
             font-family: 'Space Mono', monospace;
             margin-top: 3px; display: none;
         }
         .converted-hint.show { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity:0; transform:translateY(-4px); }
+            to   { opacity:1; transform:none; }
+        }
+        @keyframes slideDown {
+            from { opacity:0; transform:translateX(-50%) translateY(-16px); }
+            to   { opacity:1; transform:translateX(-50%) translateY(0); }
+        }
+
+        /* ── En-tête enrichie ── */
+        .tp-label {
+            display: inline-block;
+            background: linear-gradient(135deg, #3b82f6, #7c3aed);
+            color: white;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.82rem; font-weight: 700;
+            padding: 6px 18px; border-radius: 20px;
+            letter-spacing: 0.06em;
+            margin-bottom: 14px;
+        }
+        .form-header h1 {
+            font-size: 1.9rem;
+            margin-bottom: 4px;
+        }
+        .form-header .subtitle {
+            color: #94a3b8; font-size: 0.85rem;
+            margin-bottom: 10px;
+        }
+        .form-header .app-desc {
+            font-size: 0.8rem;
+            color: #64748b;
+            line-height: 1.6;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        /* ── Bouton dashboard en bas — grand et animé ── */
+        .dash-footer-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            margin-top: 16px;
+            padding: 20px 32px;
+            background: linear-gradient(135deg, #0d1f35, #1e3a5f);
+            color: #93c5fd;
+            text-decoration: none;
+            border-radius: 14px;
+            font-family: 'Syne', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 800;
+            letter-spacing: 0.01em;
+            border: 1px solid #1e3a5f;
+            box-shadow: 0 4px 20px rgba(59,130,246,0.15);
+            transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s, color 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        .dash-footer-btn::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: linear-gradient(135deg, rgba(59,130,246,0.08), rgba(124,58,237,0.08));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .dash-footer-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 32px rgba(59,130,246,0.35);
+            border-color: #3b82f6;
+            color: #ffffff;
+        }
+        .dash-footer-btn:hover::before { opacity: 1; }
+        .dash-footer-btn:active { transform: translateY(0); }
+
+        .dash-footer-btn .btn-icon {
+            font-size: 1.3rem;
+            animation: float 2.5s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50%       { transform: translateY(-4px); }
+        }
+        .dash-footer-btn .btn-arrow {
+            font-size: 1.1rem;
+            transition: transform 0.2s;
+        }
+        .dash-footer-btn:hover .btn-arrow {
+            transform: translateX(5px);
+        }
     </style>
 </head>
 <body class="form-page">
@@ -197,8 +295,15 @@
 <div class="form-wrapper">
     <div class="form-header">
         <div class="logo-badge">🏍️</div>
+        <div class="tp-label">TP INF232 — Application de Collecte de Données</div>
         <h1>Benskin <span class="accent">Analytics</span></h1>
         <p class="subtitle">Observatoire Intelligent du Transport Urbain · Yaoundé</p>
+        <p class="app-desc">
+            Application de collecte et d'analyse de données auprès des conducteurs de
+            moto-taxi (<strong style="color:#93c5fd">Benskin</strong>) au Cameroun.
+            Renseignez vos données journalières pour alimenter les modèles d'analyse IA
+            en temps réel.
+        </p>
     </div>
 
     <form action="/submit" method="POST" class="data-form" id="mainForm" novalidate>
@@ -227,14 +332,45 @@
                 <div class="field full">
                     <label for="zone">Zone de travail</label>
                     <select id="zone" name="zone" required>
-                        <option value="" disabled selected>Sélectionner une zone</option>
-                        <option value="Centre-ville">Centre-ville</option>
-                        <option value="Bastos">Bastos</option>
-                        <option value="Biyem-Assi">Biyem-Assi</option>
-                        <option value="Melen">Melen</option>
-                        <option value="Ngousso">Ngousso</option>
-                        <option value="Essos">Essos</option>
-                        <option value="Autre">Autre</option>
+                        <option value="" disabled selected>Sélectionner un quartier de Yaoundé</option>
+                        <!-- Centre -->
+                        <optgroup label="— Centre —">
+                            <option value="Centre-ville">Centre-ville</option>
+                            <option value="Mvog-Ada">Mvog-Ada</option>
+                            <option value="Mfoundi">Mfoundi</option>
+                        </optgroup>
+                        <!-- Nord -->
+                        <optgroup label="— Nord —">
+                            <option value="Bastos">Bastos</option>
+                            <option value="Ngousso">Ngousso</option>
+                            <option value="Ntougou">Ntougou</option>
+                            <option value="Olembe">Olembe</option>
+                            <option value="Nkol-Afeme">Nkol-Afeme</option>
+                        </optgroup>
+                        <!-- Sud / Sud-Ouest -->
+                        <optgroup label="— Sud / Sud-Ouest —">
+                            <option value="Biyem-Assi">Biyem-Assi</option>
+                            <option value="Melen">Melen</option>
+                            <option value="Essos">Essos</option>
+                            <option value="Nkomo">Nkomo</option>
+                            <option value="Mvog-Betsi">Mvog-Betsi</option>
+                            <option value="Ekounou">Ekounou</option>
+                        </optgroup>
+                        <!-- Est -->
+                        <optgroup label="— Est —">
+                            <option value="Nkolbisson">Nkolbisson</option>
+                            <option value="Mimboman">Mimboman</option>
+                            <option value="Nkol-Messeng">Nkol-Messeng</option>
+                        </optgroup>
+                        <!-- Ouest -->
+                        <optgroup label="— Ouest —">
+                            <option value="Mendong">Mendong</option>
+                            <option value="Nkoldongo">Nkoldongo</option>
+                            <option value="Kondengui">Kondengui</option>
+                        </optgroup>
+                        <optgroup label="—">
+                            <option value="Autre">Autre quartier</option>
+                        </optgroup>
                     </select>
                     <span class="field-error" id="err_zone"></span>
                 </div>
@@ -251,7 +387,7 @@
                     <label for="heures_travail">Heures de travail / jour <span class="hint-range">(1 – 24 h)</span></label>
                     <input type="number" id="heures_travail" name="heures_travail"
                            min="1" max="24" step="0.5"
-                           placeholder="Ex: 8.5" required>
+                           placeholder="Ex: 5" required>
                     <span class="converted-hint" id="conv_heures_travail"></span>
                     <span class="field-error" id="err_heures_travail"></span>
                 </div>
@@ -334,36 +470,46 @@
             </div>
         </div>
 
+        <!-- Bouton soumettre -->
         <button type="submit" class="submit-btn" id="submitBtn">
             <span>Soumettre &amp; Analyser</span>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2.5">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
         </button>
+
     </form>
 
+    <!-- Bouton dashboard grand et animé -->
     <div class="form-footer">
-        <a href="/dashboard" class="dash-link">→ Voir le tableau de bord IA</a>
+        <a href="/dashboard" class="dash-footer-btn">
+            <span class="btn-icon">📊</span>
+            <span>Voir le Tableau de Bord IA</span>
+            <span class="btn-arrow">→</span>
+        </a>
     </div>
+
 </div>
 
 <script>
 // ══════════════════════════════════════════════════════════════
-//  CONFIGURATION DES CHAMPS : règles de validation + messages
+//  CONFIG : isFloat=true → conversion + hint affiché
+//           isFloat=false → entier strict, pas de hint
 // ══════════════════════════════════════════════════════════════
-const FIELDS_CONFIG = {
-    age:             { min: 18,  max: 70,     isFloat: false, label: "Âge",                    unit: "ans" },
-    experience:      { min: 0,   max: 40,     isFloat: false, label: "Expérience",              unit: "ans" },
-    heures_travail:  { min: 1,   max: 24,     isFloat: true,  label: "Heures de travail",       unit: "h"   },
-    clients:         { min: 1,   max: 100,    isFloat: false, label: "Nombre de clients",       unit: ""    },
-    distance_km:     { min: 1,   max: 500,    isFloat: true,  label: "Distance",                unit: "km"  },
-    carburant_litre: { min: 0.5, max: 50,     isFloat: true,  label: "Carburant",               unit: "L"   },
-    revenu:          { min: 500, max: 100000, isFloat: true,  label: "Revenu",                  unit: "FCFA"},
-    note_client:     { min: 0,   max: 5,      isFloat: true,  label: "Note client",             unit: "/5"  },
-    fatigue:         { min: 1,   max: 10,     isFloat: false, label: "Fatigue",                 unit: "/10" },
+var FIELDS_CONFIG = {
+    age:             { min: 18,  max: 70,     isFloat: false, label: "Âge",               unit: "ans"  },
+    experience:      { min: 0,   max: 40,     isFloat: false, label: "Expérience",         unit: "ans"  },
+    heures_travail:  { min: 1,   max: 24,     isFloat: true,  label: "Heures de travail",  unit: "h"    },
+    clients:         { min: 1,   max: 100,    isFloat: false, label: "Nombre de clients",  unit: ""     },
+    distance_km:     { min: 1,   max: 500,    isFloat: true,  label: "Distance",           unit: "km"   },
+    carburant_litre: { min: 0.5, max: 50,     isFloat: true,  label: "Carburant",          unit: "L"    },
+    revenu:          { min: 500, max: 100000, isFloat: true,  label: "Revenu",             unit: "FCFA" },
+    note_client:     { min: 0,   max: 5,      isFloat: true,  label: "Note client",        unit: "/5"   },
+    fatigue:         { min: 1,   max: 10,     isFloat: false, label: "Fatigue",            unit: "/10"  },
 };
 
-// ══════════════════════════════════════════════════════════════
-//  UTILITAIRES
-// ══════════════════════════════════════════════════════════════
+// ── Utilitaires ───────────────────────────────────────────────
 function showError(fieldId, msg) {
     var input = document.getElementById(fieldId);
     var errEl = document.getElementById('err_' + fieldId);
@@ -390,10 +536,11 @@ function markValid(fieldId) {
     input.classList.add('valid');
 }
 
-function showConvertedHint(fieldId, originalVal, convertedVal) {
+// Hint de conversion — uniquement pour les champs float
+function showConvertedHint(fieldId, original, converted) {
     var hintEl = document.getElementById('conv_' + fieldId);
     if (!hintEl) return;
-    hintEl.textContent = '✓ Converti : ' + originalVal + ' → ' + convertedVal.toFixed(2);
+    hintEl.textContent = '✓ Valeur convertie : ' + original + ' → ' + converted.toFixed(2);
     hintEl.classList.add('show');
 }
 
@@ -407,12 +554,10 @@ function showToast(msg) {
     var toast = document.getElementById('toast');
     toast.textContent = '⚠️ ' + msg;
     toast.classList.add('show');
-    setTimeout(function() { toast.classList.remove('show'); }, 3500);
+    setTimeout(function () { toast.classList.remove('show'); }, 3500);
 }
 
-// ══════════════════════════════════════════════════════════════
-//  VALIDATION + CONVERSION D'UN CHAMP
-// ══════════════════════════════════════════════════════════════
+// ── Validation d'un champ numérique ──────────────────────────
 function validateField(fieldId) {
     var cfg   = FIELDS_CONFIG[fieldId];
     var input = document.getElementById(fieldId);
@@ -420,7 +565,6 @@ function validateField(fieldId) {
 
     var raw = input.value.trim();
 
-    // Champ vide
     if (raw === '') {
         showError(fieldId, cfg.label + ' est obligatoire.');
         return false;
@@ -428,33 +572,32 @@ function validateField(fieldId) {
 
     var val = parseFloat(raw);
 
-    // Non numérique
     if (isNaN(val)) {
         showError(fieldId, cfg.label + ' doit être un nombre valide.');
         return false;
     }
 
-    // Conversion entier → float pour les champs float
+    // Entier strict : refuser les décimales saisies
+    if (!cfg.isFloat && !Number.isInteger(val)) {
+        showError(fieldId, cfg.label + ' doit être un nombre entier (ex: 5, 28...).');
+        return false;
+    }
+
+    // Conversion entier → float UNIQUEMENT pour les champs float
     if (cfg.isFloat && Number.isInteger(val)) {
-        showConvertedHint(fieldId, val, val);   // affiche la note de conversion
-        // On met à jour la valeur dans le champ avec 1 décimale
+        showConvertedHint(fieldId, val, val);
         input.value = val.toFixed(1);
     } else {
         hideConvertedHint(fieldId);
     }
 
-    // Bornes
+    // Vérification des bornes
     if (val < cfg.min || val > cfg.max) {
         showError(fieldId,
             cfg.label + ' doit être compris entre ' +
-            cfg.min + ' et ' + cfg.max + ' ' + cfg.unit + '.'
+            cfg.min + ' et ' + cfg.max +
+            (cfg.unit ? ' ' + cfg.unit : '') + '.'
         );
-        return false;
-    }
-
-    // Entiers stricts : refuser les décimales saisies à la main
-    if (!cfg.isFloat && !Number.isInteger(val)) {
-        showError(fieldId, cfg.label + ' doit être un nombre entier (sans virgule).');
         return false;
     }
 
@@ -463,9 +606,7 @@ function validateField(fieldId) {
     return true;
 }
 
-// ══════════════════════════════════════════════════════════════
-//  VALIDATION SELECT
-// ══════════════════════════════════════════════════════════════
+// ── Validation du select zone ─────────────────────────────────
 function validateSelect(fieldId) {
     var sel   = document.getElementById(fieldId);
     var errEl = document.getElementById('err_' + fieldId);
@@ -483,20 +624,12 @@ function validateSelect(fieldId) {
     return true;
 }
 
-// ══════════════════════════════════════════════════════════════
-//  VALIDATION EN TEMPS RÉEL (blur sur chaque champ)
-// ══════════════════════════════════════════════════════════════
-Object.keys(FIELDS_CONFIG).forEach(function(fieldId) {
+// ── Listeners temps réel ──────────────────────────────────────
+Object.keys(FIELDS_CONFIG).forEach(function (fieldId) {
     var input = document.getElementById(fieldId);
     if (!input) return;
-
-    // Validation au moment où l'utilisateur quitte le champ
-    input.addEventListener('blur', function() {
-        validateField(fieldId);
-    });
-
-    // Effacer l'erreur dès que l'utilisateur retape
-    input.addEventListener('input', function() {
+    input.addEventListener('blur',  function () { validateField(fieldId); });
+    input.addEventListener('input', function () {
         if (input.classList.contains('invalid')) {
             clearError(fieldId);
             hideConvertedHint(fieldId);
@@ -504,31 +637,23 @@ Object.keys(FIELDS_CONFIG).forEach(function(fieldId) {
     });
 });
 
-// Validation sélect en temps réel
 var zoneSelect = document.getElementById('zone');
 if (zoneSelect) {
-    zoneSelect.addEventListener('change', function() { validateSelect('zone'); });
+    zoneSelect.addEventListener('change', function () { validateSelect('zone'); });
 }
 
-// ══════════════════════════════════════════════════════════════
-//  VALIDATION GLOBALE À LA SOUMISSION
-// ══════════════════════════════════════════════════════════════
-document.getElementById('mainForm').addEventListener('submit', function(e) {
+// ── Soumission globale ────────────────────────────────────────
+document.getElementById('mainForm').addEventListener('submit', function (e) {
     e.preventDefault();
 
     var allValid = true;
-
-    // Valider tous les champs numériques
-    Object.keys(FIELDS_CONFIG).forEach(function(fieldId) {
+    Object.keys(FIELDS_CONFIG).forEach(function (fieldId) {
         if (!validateField(fieldId)) allValid = false;
     });
-
-    // Valider le select
     if (!validateSelect('zone')) allValid = false;
 
     if (!allValid) {
         showToast('Veuillez corriger les erreurs avant de soumettre.');
-        // Scroll vers la première erreur
         var firstInvalid = document.querySelector('.invalid');
         if (firstInvalid) {
             firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -537,24 +662,21 @@ document.getElementById('mainForm').addEventListener('submit', function(e) {
         return;
     }
 
-    // Tout est valide → soumettre
     var btn = document.getElementById('submitBtn');
     btn.disabled = true;
     btn.innerHTML = '<span>Envoi en cours...</span>';
     this.submit();
 });
 
-// ══════════════════════════════════════════════════════════════
-//  ANIMATION D'ENTRÉE DES CHAMPS
-// ══════════════════════════════════════════════════════════════
+// ── Animation d'entrée des champs ─────────────────────────────
 var fields = document.querySelectorAll('.field');
-fields.forEach(function(f, i) {
-    f.style.opacity = '0';
+fields.forEach(function (f, i) {
+    f.style.opacity   = '0';
     f.style.transform = 'translateY(16px)';
-    setTimeout(function() {
+    setTimeout(function () {
         f.style.transition = 'all 0.4s ease';
-        f.style.opacity = '1';
-        f.style.transform = 'translateY(0)';
+        f.style.opacity    = '1';
+        f.style.transform  = 'translateY(0)';
     }, 80 + i * 40);
 });
 </script>

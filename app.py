@@ -281,8 +281,14 @@ def parse_and_validate(form_data):
 
     # Champ zone (string)
     zone = form_data.get("zone", "").strip()
-    valid_zones = {"Centre-ville", "Bastos", "Biyem-Assi", "Melen",
-                   "Ngousso", "Essos", "Autre"}
+    valid_zones = {
+        "Centre-ville", "Mvog-Ada", "Mfoundi",
+        "Bastos", "Ngousso", "Ntougou", "Olembe", "Nkol-Afeme",
+        "Biyem-Assi", "Melen", "Essos", "Nkomo", "Mvog-Betsi", "Ekounou",
+        "Nkolbisson", "Mimboman", "Nkol-Messeng",
+        "Mendong", "Nkoldongo", "Kondengui",
+        "Autre"
+    }
     if not zone:
         errors.append("Le champ « Zone de travail » est obligatoire.")
     elif zone not in valid_zones:
