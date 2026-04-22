@@ -103,11 +103,11 @@
     </div>
     <div class="analysis-desc">
         <div class="desc-block">
-            <h4>🎯 Objectif</h4>
+            <h4>Objectif</h4>
             <p>Quantifier la relation linéaire entre le nombre d'heures travaillées par jour et le revenu journalier d'un conducteur Benskin. Ce modèle permet de répondre à la question : <em>chaque heure de travail supplémentaire génère-t-elle un gain de revenu significatif et constant ?</em></p>
         </div>
         <div class="desc-block">
-            <h4>📐 Formule mathématique</h4>
+            <h4>Formule mathématique</h4>
             <div class="formula">Ŷ = β₀ + β₁ · X₁ + ε</div>
             <p><strong>Ŷ</strong> = revenu prédit (FCFA) · <strong>β₀</strong> = constante (intercept, revenu de base) · <strong>β₁</strong> = coefficient directeur (gain marginal par heure) · <strong>X₁</strong> = heures de travail · <strong>ε</strong> = erreur résiduelle. Les paramètres β sont estimés par la méthode des <strong>Moindres Carrés Ordinaires (MCO)</strong> qui minimise Σ(Yᵢ − Ŷᵢ)².</p>
         </div>
@@ -131,16 +131,16 @@
     </div>
     <div class="analysis-desc">
         <div class="desc-block">
-            <h4>🎯 Objectif</h4>
+            <h4>Objectif</h4>
             <p>Améliorer la précision de prédiction du revenu en intégrant plusieurs variables explicatives simultanément. Ce modèle capture l'effet conjoint des heures de travail, du nombre de clients servis et de la distance parcourue, qui sont les 3 principaux facteurs déterminants du revenu d'un Benskin.</p>
         </div>
         <div class="desc-block">
-            <h4>📐 Formule mathématique</h4>
+            <h4>Formule mathématique</h4>
             <div class="formula">Ŷ = β₀ + β₁·X₁ + β₂·X₂ + β₃·X₃ + ε</div>
             <p><strong>X₁</strong> = heures de travail · <strong>X₂</strong> = nombre de clients · <strong>X₃</strong> = distance (km). Chaque coefficient βₖ mesure l'effet marginal de la variable Xₖ sur le revenu, <em>toutes les autres variables maintenues constantes</em>. L'estimation reste par MCO sur la matrice augmentée X = [1, X₁, X₂, X₃].</p>
         </div>
         <div class="desc-block">
-            <h4>📊 Gain d'information vs modèle simple</h4>
+            <h4>Gain d'information vs modèle simple</h4>
             <p>En ajoutant des variables explicatives, le R² augmente (ou reste stable). La différence ΔR² = R²(multiple) − R²(simple) mesure le <strong>gain d'information</strong> apporté par les variables supplémentaires. La courbe verte représente la prédiction IA, la courbe bleue les valeurs réelles observées.</p>
         </div>
     </div>
@@ -159,11 +159,11 @@
     </div>
     <div class="analysis-desc">
         <div class="desc-block">
-            <h4>🎯 Objectif</h4>
+            <h4>Objectif</h4>
             <p>Réduire la complexité des données en transformant les 9 variables mesurées (âge, expérience, heures, clients, revenu, fatigue, distance, carburant, note) en un petit nombre de <strong>composantes principales non corrélées</strong>, tout en conservant le maximum d'information statistique. Cela permet de visualiser visuellement les ressemblances entre conducteurs.</p>
         </div>
         <div class="desc-block">
-            <h4>📐 Formule mathématique</h4>
+            <h4>Formule mathématique</h4>
             <div class="formula">PCₖ = Σᵢ aᵢₖ · Xᵢ &nbsp;·&nbsp; Cov(X) · aₖ = λₖ · aₖ</div>
             <p>Les composantes principales sont les <strong>vecteurs propres</strong> (aₖ) de la matrice de covariance, associés aux <strong>valeurs propres</strong> (λₖ) ordonnées de façon décroissante. PC1 capture la variance maximale, PC2 la seconde plus grande variance orthogonalement à PC1. Les données sont préalablement <strong>centrées-réduites</strong> (µ=0, σ=1) via StandardScaler.</p>
         </div>
@@ -189,11 +189,11 @@
             </div>
             <div class="analysis-desc">
                 <div class="desc-block">
-                    <h4>🎯 Objectif</h4>
+                    <h4>Objectif</h4>
                     <p>Prédire la <strong>probabilité qu'un conducteur ait un accident</strong> en fonction de ses caractéristiques (fatigue, expérience, âge, heures, distance). La classification est dite <em>supervisée</em> car le modèle apprend à partir d'exemples labellisés (accident = oui/non).</p>
                 </div>
                 <div class="desc-block">
-                    <h4>📐 Algorithme : Forêt Aléatoire (Random Forest)</h4>
+                    <h4>Algorithme : Forêt Aléatoire (Random Forest)</h4>
                     <div class="formula">P̂(accident|x) = (1/B) · Σᵦ Tᵦ(x)</div>
                     <p>B=50 arbres de décision indépendants, chacun entraîné sur un sous-échantillon bootstrap (tirage avec remise). Le score P̂ est la <strong>moyenne des probabilités</strong> prédites par tous les arbres. Cette agrégation (<em>bagging</em>) réduit la variance et le surapprentissage par rapport à un arbre unique.</p>
                 </div>
@@ -218,16 +218,16 @@
             </div>
             <div class="analysis-desc">
                 <div class="desc-block">
-                    <h4>🎯 Objectif</h4>
+                    <h4>Objectif</h4>
                     <p>Regrouper automatiquement les conducteurs en <strong>3 segments homogènes</strong> sans labels prédéfinis, uniquement à partir de leurs données (revenu, fatigue, clients, note). La classification est dite <em>non supervisée</em> car aucune variable cible n'est utilisée. On cherche la structure cachée dans les données.</p>
                 </div>
                 <div class="desc-block">
-                    <h4>📐 Algorithme : K-Means</h4>
+                    <h4>Algorithme : K-Means</h4>
                     <div class="formula">argmin{Cₖ} Σₖ₌₁³ Σₓ∈Cₖ ‖x − μₖ‖²</div>
                     <p>L'algorithme minimise l'<strong>inertie intra-cluster</strong> (somme des distances quadratiques aux centroïdes μₖ). Il alterne entre : (1) <em>affectation</em> — chaque point rejoint le centroïde le plus proche ; (2) <em>mise à jour</em> — recalcul des centroïdes. Convergence garantie (n_init=10 initialisations aléatoires).</p>
                 </div>
                 <div class="desc-block">
-                    <h4>📊 Segments identifiés</h4>
+                    <h4>Segments identifiés</h4>
                     <p><strong>● Performant</strong> : revenu élevé + faible fatigue = conducteur efficace. <strong>■ Modéré</strong> : profil équilibré intermédiaire. <strong>◆ À risque</strong> : fatigue élevée + revenu bas = conducteur en difficulté nécessitant une attention particulière.</p>
                 </div>
             </div>
