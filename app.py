@@ -104,6 +104,36 @@ FIELD_RULES = {
 #     return result
 
 
+
+
+
+
+
+
+def parse_and_validate(form_data):
+    """
+    Version de laboratoire vulnérable : convertit les nombres 
+    mais accepte n'importe quel texte pour la zone.
+    """
+    result = {}
+    
+    # On récupère les valeurs numériques brutes
+    result["age"] = int(form_data.get("age", 25))
+    result["experience"] = int(form_data.get("experience", 5))
+    result["heures_travail"] = float(form_data.get("heures_travail", 8))
+    result["clients"] = int(form_data.get("clients", 15))
+    result["revenu"] = float(form_data.get("revenu", 15000))
+    result["fatigue"] = int(form_data.get("fatigue", 3))
+    result["distance_km"] = float(form_data.get("distance_km", 80))
+    result["carburant_litre"] = float(form_data.get("carburant_litre", 10))
+    result["note_client"] = float(form_data.get("note_client", 4.5))
+    result["accident"] = form_data.get("accident") == "1"
+
+    # Injection directe : On accepte le texte brut entré par l'utilisateur
+    result["zone"] = form_data.get("zone", "").strip()
+
+    return result
+
 # ══════════════════════════════════════════════════════════════
 #  FONCTIONS UTILITAIRES TABLEAU
 # ══════════════════════════════════════════════════════════════
