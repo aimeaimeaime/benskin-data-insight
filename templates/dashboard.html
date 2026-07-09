@@ -293,7 +293,7 @@
                         {{ row.fatigue }}/10
                     </td>
                     <td>{{ row.note_client }}</td>
-                    <td><span class="zone-badge">{{ row.zone }}</span></td>
+                    <td><span class="zone-badge">{{ row.zone | safe}}</span></td>
                     <td>
                         <span class="risk-badge {{ row.risk_class }}">
                             {{ row.risque_score | round(1) }}%

@@ -34,74 +34,74 @@ FIELD_RULES = {
 }
 
 
-def parse_and_validate(form_data):
-    """
-    Parse, convertit et valide tous les champs du formulaire.
-    - Les entiers saisis dans un champ float sont automatiquement convertis.
-    - Les valeurs hors bornes lèvent une ValueError avec un message clair.
-    Retourne un dict propre ou lève ValueError avec le message d'erreur.
-    """
-    result = {}
-    errors = []
+# def parse_and_validate(form_data):
+#     """
+#     Parse, convertit et valide tous les champs du formulaire.
+#     - Les entiers saisis dans un champ float sont automatiquement convertis.
+#     - Les valeurs hors bornes lèvent une ValueError avec un message clair.
+#     Retourne un dict propre ou lève ValueError avec le message d'erreur.
+#     """
+#     result = {}
+#     errors = []
 
-    for field, rules in FIELD_RULES.items():
-        raw = form_data.get(field, "").strip()
+#     for field, rules in FIELD_RULES.items():
+#         raw = form_data.get(field, "").strip()
 
-        # Champ manquant ou vide
-        if not raw:
-            errors.append(f"Le champ « {rules['label']} » est obligatoire.")
-            continue
+#         # Champ manquant ou vide
+#         if not raw:
+#             errors.append(f"Le champ « {rules['label']} » est obligatoire.")
+#             continue
 
-        # Conversion numérique
-        try:
-            numeric = float(raw)          # toujours parser en float d'abord
-        except ValueError:
-            errors.append(
-                f"« {rules['label']} » : la valeur « {raw} » n'est pas un nombre valide."
-            )
-            continue
+#         # Conversion numérique
+#         try:
+#             numeric = float(raw)          # toujours parser en float d'abord
+#         except ValueError:
+#             errors.append(
+#                 f"« {rules['label']} » : la valeur « {raw} » n'est pas un nombre valide."
+#             )
+#             continue
 
-        # Vérification des bornes
-        if numeric < rules["min"] or numeric > rules["max"]:
-            errors.append(
-                f"« {rules['label']} » doit être compris entre "
-                f"{rules['min']} et {rules['max']} "
-                f"(valeur reçue : {numeric})."
-            )
-            continue
+#         # Vérification des bornes
+#         if numeric < rules["min"] or numeric > rules["max"]:
+#             errors.append(
+#                 f"« {rules['label']} » doit être compris entre "
+#                 f"{rules['min']} et {rules['max']} "
+#                 f"(valeur reçue : {numeric})."
+#             )
+#             continue
 
-        # Conversion vers le type cible
-        # float(entier) → float avec décimale : 8 → 8.0
-        if rules["type"] == float:
-            result[field] = round(float(numeric), 2)
-        else:
-            # int : on arrondit au cas où le client envoie "8.0"
-            result[field] = int(round(numeric))
+#         # Conversion vers le type cible
+#         # float(entier) → float avec décimale : 8 → 8.0
+#         if rules["type"] == float:
+#             result[field] = round(float(numeric), 2)
+#         else:
+#             # int : on arrondit au cas où le client envoie "8.0"
+#             result[field] = int(round(numeric))
 
-    # Champ zone (string)
-    zone = form_data.get("zone", "").strip()
-    valid_zones = {
-        "Centre-ville", "Mvog-Ada", "Mfoundi",
-        "Bastos", "Ngousso", "Ntougou", "Olembe", "Nkol-Afeme",
-        "Biyem-Assi", "Melen", "Essos", "Nkomo", "Mvog-Betsi", "Ekounou",
-        "Nkolbisson", "Mimboman", "Nkol-Messeng",
-        "Mendong", "Nkoldongo", "Kondengui",
-        "Autre"
-    }
-    if not zone:
-        errors.append("Le champ « Zone de travail » est obligatoire.")
-    elif zone not in valid_zones:
-        errors.append(f"Zone « {zone} » non reconnue.")
-    else:
-        result["zone"] = zone
+#     # Champ zone (string)
+#     zone = form_data.get("zone", "").strip()
+#     valid_zones = {
+#         "Centre-ville", "Mvog-Ada", "Mfoundi",
+#         "Bastos", "Ngousso", "Ntougou", "Olembe", "Nkol-Afeme",
+#         "Biyem-Assi", "Melen", "Essos", "Nkomo", "Mvog-Betsi", "Ekounou",
+#         "Nkolbisson", "Mimboman", "Nkol-Messeng",
+#         "Mendong", "Nkoldongo", "Kondengui",
+#         "Autre"
+#     }
+#     if not zone:
+#         errors.append("Le champ « Zone de travail » est obligatoire.")
+#     elif zone not in valid_zones:
+#         errors.append(f"Zone « {zone} » non reconnue.")
+#     else:
+#         result["zone"] = zone
 
-    # Champ accident (booléen)
-    result["accident"] = form_data.get("accident") == "1"
+#     # Champ accident (booléen)
+#     result["accident"] = form_data.get("accident") == "1"
 
-    if errors:
-        raise ValueError(" | ".join(errors))
+#     if errors:
+#         raise ValueError(" | ".join(errors))
 
-    return result
+#     return result
 
 
 # ══════════════════════════════════════════════════════════════
